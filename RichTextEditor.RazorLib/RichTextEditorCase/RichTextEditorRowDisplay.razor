@@ -2,4 +2,9 @@
 
 <div class="rte_rich-text-editor-row-display">
     <RichTextEditorLineNumberDisplay IndexOfRow="Index" />
+
+    @foreach(var textTokenKey in RichTextEditorRow.Array)
+    {
+        <TextTokenDisplay TextToken="RichTextEditorRow.Map[textTokenKey]" />
+    }
 </div>
