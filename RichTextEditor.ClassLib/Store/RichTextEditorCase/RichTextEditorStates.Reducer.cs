@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Fluxor;
+using RichTextEditor.ClassLib.Store.KeyDownEventCase;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
@@ -35,6 +37,28 @@ public partial record RichTextEditorStates
 
             nextMap.Remove(deconstructRichTextEditorRecordAction.RichTextEditorKey);
             nextList.Remove(deconstructRichTextEditorRecordAction.RichTextEditorKey);
+
+            return new RichTextEditorStates(nextMap.ToImmutableDictionary(), nextList.ToImmutableArray());
+        }
+        
+        [ReducerMethod]
+        public static RichTextEditorStates ReduceKeyDownEventAction(RichTextEditorStates previousRichTextEditorStates,
+            KeyDownEventAction keyDownEventAction)
+        {
+            var nextMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
+            var nextList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
+
+            var focusedRichTextEditor = previousRichTextEditorStates.Map[keyDownEventAction.FocusedRichTextEditorKey]
+                as RichTextEditorRecord;
+
+            if (focusedRichTextEditor is null) 
+                return previousRichTextEditorStates;
+
+            nextMap[keyDownEventAction.FocusedRichTextEditorKey] = focusedRichTextEditor with
+            {
+                Content = new StringBuilder(focusedRichTextEditor.Content.ToString() 
+                                            + keyDownEventAction.KeyDownEventRecord.Key)
+            };
 
             return new RichTextEditorStates(nextMap.ToImmutableDictionary(), nextList.ToImmutableArray());
         }

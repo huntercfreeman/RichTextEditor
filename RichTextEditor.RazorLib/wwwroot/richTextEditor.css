@@ -1,0 +1,31 @@
+.rte_visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.rte_unselectable {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.rte_rich-text-editor-display {
+    min-height: 100px;
+    min-width: 100px;
+    max-height: 100%;
+    max-width: 100%;
+    margin: 10px;
+    overflow: auto;
+    border: 2px solid black;
+}
+
+.rte_rich-text-editor-display.rte_focused {
+    border: 2px solid #0000ff;
+    box-shadow: 3px 3px red, -1em 0 .4em olive;
+}
