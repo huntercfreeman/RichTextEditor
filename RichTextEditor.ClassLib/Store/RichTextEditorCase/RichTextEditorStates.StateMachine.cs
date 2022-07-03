@@ -17,10 +17,17 @@ public partial record RichTextEditorStates
         {
             if (KeyboardKeyFacts.IsWhitespaceKey(keyDownEventRecord))
             {
-                var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
+                if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)
+                {
+                    return InsertNewLine(focusedRichTextEditorRecord);
+                }
+                else
+                {
+                    var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
                 
-                return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                    whitespaceTextToken);
+                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
+                        whitespaceTextToken);
+                }
             }
             else if (KeyboardKeyFacts.IsMovementKey(keyDownEventRecord))
             {
@@ -115,6 +122,31 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord with
             {
                 Map = nextRowMap.ToImmutableDictionary()
+            };
+        }
+
+        private static IRichTextEditor InsertNewLine(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            var constructedRowInstance = new RichTextEditorRow();
+            
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+
+            nextRowMap.Add(constructedRowInstance.Key, constructedRowInstance);
+
+            var nextRowList = new List<RichTextEditorRowKey>(
+                focusedRichTextEditorRecord.Array
+            );
+
+            nextRowList.Add(constructedRowInstance.Key);
+
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary(),
+                Array = nextRowList.ToImmutableArray(),
+                CurrentTokenIndex = 0,
+                CurrentRowIndex = focusedRichTextEditorRecord.CurrentRowIndex + 1
             };
         }
     }

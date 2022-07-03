@@ -50,6 +50,11 @@ public partial class RichTextEditorDisplay : ComponentBase
         )));
 
         JsRuntime.InvokeVoidAsync("richTextEditor.clearInputElement", _inputFocusTrap);
+
+        if (e.Code == KeyboardKeyFacts.WhitespaceKeys.TAB_CODE)
+        {
+            _inputFocusTrap.FocusAsync();
+        }
     }
     
     private void OnFocusIn()
