@@ -25,6 +25,19 @@ public partial record RichTextEditorStates
 
             return new RichTextEditorStates(nextMap.ToImmutableDictionary(), nextList.ToImmutableArray());
         }
+        
+        [ReducerMethod]
+        public static RichTextEditorStates ReduceDeconstructRichTextEditorRecordAction(RichTextEditorStates previousRichTextEditorStates,
+            DeconstructRichTextEditorRecordAction deconstructRichTextEditorRecordAction)
+        {
+            var nextMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
+            var nextList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
+
+            nextMap.Remove(deconstructRichTextEditorRecordAction.RichTextEditorKey);
+            nextList.Remove(deconstructRichTextEditorRecordAction.RichTextEditorKey);
+
+            return new RichTextEditorStates(nextMap.ToImmutableDictionary(), nextList.ToImmutableArray());
+        }
     }
 }
 

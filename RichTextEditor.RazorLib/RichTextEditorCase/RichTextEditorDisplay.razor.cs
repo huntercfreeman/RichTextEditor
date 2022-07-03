@@ -14,7 +14,7 @@ public partial class RichTextEditorDisplay : ComponentBase
     private IStateSelection<RichTextEditorStates, IRichTextEditor> RichTextEditorSelector { get; set; } = null!;
 
     [Parameter]
-    private RichTextEditorKey RichTextEditorKey { get; set; } = null!;
+    public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
 
     protected override void OnInitialized()
     {

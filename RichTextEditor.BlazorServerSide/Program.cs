@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using RichTextEditor.BlazorServerSide.Data;
 using MudBlazor.Services;
+using RichTextEditor.RazorLib;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
+
+builder.Services.AddRichTextEditorRazorLibServices();
 
 var app = builder.Build();
 

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Fluxor;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
-namespace RichTextEditor.BlazorServerSide.Services;
+namespace RichTextEditor.ClassLib.Services;
 
-public class RichTextEditorService
+public class RichTextEditorService : IRichTextEditorService
 {
     private readonly IDispatcher dispatcher;
 
@@ -19,5 +19,10 @@ public class RichTextEditorService
     public void ConstructRichTextEditor(RichTextEditorKey richTextEditorKey)
     {
         dispatcher.Dispatch(new ConstructRichTextEditorRecordAction(richTextEditorKey));
+    }
+    
+    public void DeconstructRichTextEditor(RichTextEditorKey richTextEditorKey)
+    {
+        dispatcher.Dispatch(new DeconstructRichTextEditorRecordAction(richTextEditorKey));
     }
 }
