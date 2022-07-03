@@ -150,6 +150,14 @@ public partial record RichTextEditorStates
 
         private static RichTextEditorRecord InsertNewLine(RichTextEditorRecord focusedRichTextEditorRecord)
         {
+            var replacementCurrentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>() with
+                {
+                    IndexInPlainText = null
+                };
+
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
             var constructedRowInstance = new RichTextEditorRow();
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
