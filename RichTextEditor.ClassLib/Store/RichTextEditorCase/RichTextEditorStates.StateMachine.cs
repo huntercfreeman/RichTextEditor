@@ -51,6 +51,8 @@ public partial record RichTextEditorStates
                         focusedRichTextEditorRecord.Map
                     );
 
+                    nextRowMap[nextRowInstance.Key] = nextRowInstance;
+
                     return focusedRichTextEditorRecord with
                     {
                         Map = nextRowMap.ToImmutableDictionary()
@@ -89,7 +91,8 @@ public partial record RichTextEditorStates
 
                     return focusedRichTextEditorRecord with
                     {
-                        Map = nextRowMap.ToImmutableDictionary()
+                        Map = nextRowMap.ToImmutableDictionary(),
+                        CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 1
                     };
                 }
             }
