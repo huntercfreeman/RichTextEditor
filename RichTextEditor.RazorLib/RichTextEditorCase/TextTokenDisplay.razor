@@ -1,3 +1,16 @@
+@using ClassLib.Store.RichTextEditorCase
+@using RichTextEditor.ClassLib.Html
+
 <span class="rte_rich-text-editor-text-token-display">
-    @TextToken.PlainText
+    @switch (TextToken.Kind)
+    {
+        case TextTokenKind.StartOfRow:
+            break;
+        case TextTokenKind.Default:
+            <text>@TextToken.PlainText</text>
+            break;
+        case TextTokenKind.Whitespace:
+            <text>@((MarkupString) TextToken.PlainText.EscapeHtml())</text>
+            break;
+    }
 </span>

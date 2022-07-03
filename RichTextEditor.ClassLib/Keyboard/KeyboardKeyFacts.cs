@@ -22,11 +22,11 @@ public static class KeyboardKeyFacts
         switch (onKeyDownEventArgs.Code)
         {
             case "\t":
-            case WhitespaceKeys.TAB_KEY:
+            case WhitespaceKeys.TAB_CODE:
             case "\n":
-            case WhitespaceKeys.ENTER_KEY:
+            case WhitespaceKeys.ENTER_CODE:
             case " ":
-            case WhitespaceKeys.SPACE_KEY:
+            case WhitespaceKeys.SPACE_CODE:
                 return true;
             default:
                 return false;
@@ -43,9 +43,9 @@ public static class KeyboardKeyFacts
     
     public static class WhitespaceKeys
     {
-        public const string TAB_KEY = "Tab";
-        public const string ENTER_KEY = "Enter";
-        public const string SPACE_KEY = "Space";
+        public const string TAB_CODE = "Tab";
+        public const string ENTER_CODE = "Enter";
+        public const string SPACE_CODE = "Space";
     }
 
     public static class MovementKeys

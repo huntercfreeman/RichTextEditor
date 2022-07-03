@@ -17,7 +17,10 @@ public partial record RichTextEditorStates
         {
             if (KeyboardKeyFacts.IsWhitespaceKey(keyDownEventRecord))
             {
-
+                var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
+                
+                return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
+                    whitespaceTextToken);
             }
             else if (KeyboardKeyFacts.IsMovementKey(keyDownEventRecord))
             {

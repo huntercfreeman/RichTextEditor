@@ -37,12 +37,12 @@ public partial record RichTextEditorStates
 
         public WhitespaceTextToken(KeyDownEventRecord keyDownEventRecord)
         {
-            switch (keyDownEventRecord.Key)
+            switch (keyDownEventRecord.Code)
             {
-                case KeyboardKeyFacts.WhitespaceKeys.SPACE_KEY:
+                case KeyboardKeyFacts.WhitespaceKeys.SPACE_CODE:
                     _content = " ";
                     break;
-                case KeyboardKeyFacts.WhitespaceKeys.TAB_KEY:
+                case KeyboardKeyFacts.WhitespaceKeys.TAB_CODE:
                     _content = "\t";
                     break;
                 default:
