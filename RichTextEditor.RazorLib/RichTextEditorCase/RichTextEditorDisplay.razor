@@ -7,5 +7,16 @@
            @onfocusout="OnFocusOut"
            class="rte_visually-hidden rte_unselectable" />
 
-    @RichTextEditorSelector.Value.Text
+        @{
+            var rowKeys = RichTextEditorSelector.Value.Array;
+
+            for (int i = 0; i < rowKeys.Length; i++)
+            {
+                var index = i;
+                var rowKey = rowKeys[index];
+
+                <RichTextEditorRowDisplay RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
+                                          Index="index" />
+            }
+        }
 </div>

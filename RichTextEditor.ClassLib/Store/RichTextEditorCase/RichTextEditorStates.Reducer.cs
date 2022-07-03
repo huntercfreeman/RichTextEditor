@@ -21,7 +21,7 @@ public partial record RichTextEditorStates
             var nextMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
             var nextList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
 
-            var richTextEditor = new RichTextEditorRecord(constructRichTextEditorRecordAction.RichTextEditorKey);
+            var richTextEditor = new RichTextEditorRecord();
 
             nextMap[constructRichTextEditorRecordAction.RichTextEditorKey] = richTextEditor;
             nextList.Add(richTextEditor.RichTextEditorKey);
