@@ -10,82 +10,27 @@ namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 public partial record RichTextEditorStates
 {
-    private class StateMachine
+    private partial class StateMachine
     {
         public static IRichTextEditor HandleKeyDownEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
             KeyDownEventRecord keyDownEventRecord)
         {
             if (KeyboardKeyFacts.IsWhitespaceKey(keyDownEventRecord))
             {
-                if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)
-                {
-                    return InsertNewLine(focusedRichTextEditorRecord);
-                }
-                else
-                {
-                    var replacementCurrentToken = focusedRichTextEditorRecord
-                        .GetCurrentTextTokenAs<TextTokenBase>() with
-                        {
-                            IndexInPlainText = null
-                        };
-
-                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-                    
-                    var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord)
-                    {
-                        IndexInPlainText = 0
-                    };
-                
-                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                        whitespaceTextToken);
-                }
+                return HandleWhitespace(focusedRichTextEditorRecord, keyDownEventRecord);
             }
             else if (KeyboardKeyFacts.IsMovementKey(keyDownEventRecord))
             {
-                
+                return HandleMovement(focusedRichTextEditorRecord, keyDownEventRecord);
             }
             else if (KeyboardKeyFacts.IsMetaKey(keyDownEventRecord)) 
             {
-                
+                return HandleMetaKey(focusedRichTextEditorRecord, keyDownEventRecord);
             }
             else
             {
-                if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
-                {
-                    var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
-
-                    var content = previousDefaultToken.Content + keyDownEventRecord.Key;
-
-                    var nextDefaultToken = previousDefaultToken with
-                    {
-                        Content = content,
-                        IndexInPlainText = content.Length - 1
-                    };
-                    
-                    return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
-                }
-                else
-                {
-                    var replacementCurrentToken = focusedRichTextEditorRecord
-                        .GetCurrentTextTokenAs<TextTokenBase>() with
-                        {
-                            IndexInPlainText = null
-                        };
-
-                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-                    var defaultTextToken = new DefaultTextToken
-                    {
-                        Content = keyDownEventRecord.Key,
-                        IndexInPlainText = 0
-                    };
-                    
-                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                        defaultTextToken);
-                }
+                return HandleDefault(focusedRichTextEditorRecord, keyDownEventRecord);
             }
-
-            return focusedRichTextEditorRecord;   
         }
 
         private static RichTextEditorRecord InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
