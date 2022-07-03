@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Components;
 using RichTextEditor.ClassLib.Services;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
-namespace RichTextEditor.BlazorServerSide.Pages;
+namespace RichTextEditor.BlazorServerSide.Components;
 
-public partial class Index : ComponentBase, IDisposable
+public partial class RichTextEditorSpawn : ComponentBase, IDisposable
 {
     [Inject]
     private IRichTextEditorService RichTextEditorService { get; set; } = null!;
