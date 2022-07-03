@@ -32,7 +32,7 @@ public partial record RichTextEditorStates
                     focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
                     if (replacementCurrentToken.IndexInPlainText is null) 
-                        SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+                        focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
                     break;
                 case KeyboardKeyFacts.MovementKeys.ARROW_DOWN_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_DOWN_KEY:

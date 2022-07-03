@@ -207,10 +207,7 @@ public partial record RichTextEditorStates
 
                 // There is a token previous to me on my current row
                 var currentRow = focusedRichTextEditorRecord
-                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
-                    {
-                        
-                    };
+                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
                 var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
 
@@ -231,6 +228,7 @@ public partial record RichTextEditorStates
 
                 return focusedRichTextEditorRecord with
                 {
+                    Map = nextRowMap.ToImmutableDictionary(),
                     CurrentTokenIndex = previousTokenTuple.tokenIndex
                 };
             }
@@ -260,7 +258,9 @@ public partial record RichTextEditorStates
 
                 return focusedRichTextEditorRecord with
                 {
-                    CurrentTokenIndex = previousTokenTuple.tokenIndex
+                    Map = nextRowMap.ToImmutableDictionary(),
+                    CurrentTokenIndex = previousTokenTuple.tokenIndex,
+                    CurrentRowIndex = previousTokenTuple.rowIndex
                 };
             }
         }
