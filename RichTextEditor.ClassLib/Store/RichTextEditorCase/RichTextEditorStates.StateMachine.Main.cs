@@ -237,7 +237,9 @@ public partial record RichTextEditorStates
                 // There was a previous token HOWEVER, it was located on previous row
                 var previousRowKey = focusedRichTextEditorRecord.Array[previousTokenTuple.rowIndex];
 
-                var previousRow = focusedRichTextEditorRecord.Map[previousRowKey];
+                var previousRow = focusedRichTextEditorRecord.Map[previousRowKey]
+                    as RichTextEditorRow
+                    ?? throw new ApplicationException($"Expected {nameof(RichTextEditorRow)}");
 
                 var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(previousRow.Map);
 
@@ -250,8 +252,7 @@ public partial record RichTextEditorStates
                     focusedRichTextEditorRecord.Map
                 );
 
-                nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
-                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                nextRowMap[previousRowKey] = previousRow with
                     {
                         Map = replacementRowDictionary.ToImmutableDictionary()
                     };
