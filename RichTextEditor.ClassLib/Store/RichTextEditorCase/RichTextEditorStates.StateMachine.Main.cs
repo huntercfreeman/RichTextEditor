@@ -149,7 +149,7 @@ public partial record RichTextEditorStates
                         tokenIndex, 
                         token 
                             as TextTokenBase
-                            ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}");
+                            ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}")
                     );
                 }
 
@@ -174,7 +174,7 @@ public partial record RichTextEditorStates
                     tokenIndex, 
                     token 
                         as TextTokenBase
-                        ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}");
+                        ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}")
                 );
             }
         }
@@ -234,35 +234,35 @@ public partial record RichTextEditorStates
                     CurrentTokenIndex = previousTokenTuple.tokenIndex
                 };
             }
+            else
+            {
+                // There was a previous token HOWEVER, it was located on previous row
+                var previousRowKey = focusedRichTextEditorRecord.Array[previousTokenTuple.rowIndex];
 
-            // There was a previous token HOWEVER, it was located on previous row
-            var currentRow = focusedRichTextEditorRecord
-                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                var previousRow = focusedRichTextEditorRecord.Map[previousRowKey];
+
+                var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(previousRow.Map);
+
+                replacementRowDictionary[previousTokenTuple.token.Key] = previousTokenTuple.token with
                 {
-                    
+                    IndexInPlainText = previousTokenTuple.token.PlainText.Length - 1
                 };
 
-            var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
+                var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                    focusedRichTextEditorRecord.Map
+                );
 
-            replacementRowDictionary[previousTokenTuple.token.Key] = previousTokenTuple.token with
-            {
-                IndexInPlainText = previousTokenTuple.token.PlainText.Length - 1
-            };
+                nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
+                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                    {
+                        Map = replacementRowDictionary.ToImmutableDictionary()
+                    };
 
-            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
-                focusedRichTextEditorRecord.Map
-            );
-
-            nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
-                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                return focusedRichTextEditorRecord with
                 {
-                    Map = replacementRowDictionary.ToImmutableDictionary()
+                    CurrentTokenIndex = previousTokenTuple.tokenIndex
                 };
-
-            return focusedRichTextEditorRecord with
-            {
-                CurrentTokenIndex = previousTokenTuple.tokenIndex
-            };
+            }
         }
     }
 }
