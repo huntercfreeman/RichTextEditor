@@ -51,6 +51,7 @@ public partial class RichTextEditorDisplay : ComponentBase
 
         JsRuntime.InvokeVoidAsync("richTextEditor.clearInputElement", _inputFocusTrap);
 
+        // TODO: Conditionally call 'preventdefault' for onkeydown events
         if (e.Code == KeyboardKeyFacts.WhitespaceKeys.TAB_CODE)
         {
             _inputFocusTrap.FocusAsync();

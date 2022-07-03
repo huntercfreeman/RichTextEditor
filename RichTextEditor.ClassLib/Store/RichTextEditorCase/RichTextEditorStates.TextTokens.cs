@@ -13,6 +13,7 @@ public partial record RichTextEditorStates
         public abstract string PlainText { get; }
         public abstract TextTokenKind Kind { get; }
         public TextTokenKey Key { get; init; } = TextTokenKey.NewTextTokenKey();
+        public int? IndexInPlainText { get; init; }
     }
 
     private record StartOfRowTextToken : TextTokenBase

@@ -23,7 +23,18 @@ public partial record RichTextEditorStates
                 }
                 else
                 {
-                    var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
+                    var replacementCurrentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>() with
+                        {
+                            IndexInPlainText = null
+                        };
+
+                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    
+                    var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord)
+                    {
+                        IndexInPlainText = 0
+                    };
                 
                     return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
                         whitespaceTextToken);
@@ -43,18 +54,30 @@ public partial record RichTextEditorStates
                 {
                     var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
 
+                    var content = previousDefaultToken.Content + keyDownEventRecord.Key;
+
                     var nextDefaultToken = previousDefaultToken with
                     {
-                        Content = previousDefaultToken.Content + keyDownEventRecord.Key
+                        Content = content,
+                        IndexInPlainText = content.Length - 1
                     };
                     
                     return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
                 }
                 else
                 {
+                    var replacementCurrentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>() with
+                        {
+                            IndexInPlainText = null
+                        };
+
+                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
                     var defaultTextToken = new DefaultTextToken
                     {
-                        Content = keyDownEventRecord.Key
+                        Content = keyDownEventRecord.Key,
+                        IndexInPlainText = 0
                     };
                     
                     return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
@@ -65,7 +88,7 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord;   
         }
 
-        private static IRichTextEditor InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
+        private static RichTextEditorRecord InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
             ITextToken textToken)
         {
             var nextMap = new Dictionary<TextTokenKey, ITextToken>(
@@ -99,7 +122,7 @@ public partial record RichTextEditorStates
             };
         }
         
-        private static IRichTextEditor ReplaceCurrentTokenWith(RichTextEditorRecord focusedRichTextEditorRecord,
+        private static RichTextEditorRecord ReplaceCurrentTokenWith(RichTextEditorRecord focusedRichTextEditorRecord,
             ITextToken textToken)
         {
             var nextMap = new Dictionary<TextTokenKey, ITextToken>(
@@ -125,7 +148,7 @@ public partial record RichTextEditorStates
             };
         }
 
-        private static IRichTextEditor InsertNewLine(RichTextEditorRecord focusedRichTextEditorRecord)
+        private static RichTextEditorRecord InsertNewLine(RichTextEditorRecord focusedRichTextEditorRecord)
         {
             var constructedRowInstance = new RichTextEditorRow();
             

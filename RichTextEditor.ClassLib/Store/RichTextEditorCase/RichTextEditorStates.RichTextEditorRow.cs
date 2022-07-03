@@ -13,7 +13,10 @@ public partial record RichTextEditorStates
             new Dictionary<TextTokenKey, ITextToken>().ToImmutableDictionary(),
             new TextTokenKey[0].ToImmutableArray())
         {
-            var startOfRowToken = new StartOfRowTextToken();
+            var startOfRowToken = new StartOfRowTextToken()
+            {
+                IndexInPlainText = 0
+            };
 
             Map = new Dictionary<TextTokenKey, ITextToken>
             {
