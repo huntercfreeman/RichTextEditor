@@ -32,31 +32,13 @@ public partial record RichTextEditorStates
                 if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
                 {
                     var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
-                    
-                    var nextMap = new Dictionary<TextTokenKey, ITextToken>(
-                        focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
-                    );
 
-                    nextMap[previousDefaultToken.Key] = previousDefaultToken with
+                    var nextDefaultToken = previousDefaultToken with
                     {
                         Content = previousDefaultToken.Content + keyDownEventRecord.Key
                     };
-
-                    var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
-                    {
-                        Map = nextMap.ToImmutableDictionary()
-                    };
                     
-                    var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
-                        focusedRichTextEditorRecord.Map
-                    );
-
-                    nextRowMap[nextRowInstance.Key] = nextRowInstance;
-
-                    return focusedRichTextEditorRecord with
-                    {
-                        Map = nextRowMap.ToImmutableDictionary()
-                    };
+                    return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
                 }
                 else
                 {
@@ -65,39 +47,72 @@ public partial record RichTextEditorStates
                         Content = keyDownEventRecord.Key
                     };
                     
-                    var nextMap = new Dictionary<TextTokenKey, ITextToken>(
-                        focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
-                    );
-
-                    nextMap[defaultTextToken.Key] = defaultTextToken;
-                    
-                    var nextList = new List<TextTokenKey>(
-                        focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
-                    );
-
-                    nextList.Add(defaultTextToken.Key);
-                    
-                    var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
-                    {
-                        Map = nextMap.ToImmutableDictionary(),
-                        Array = nextList.ToImmutableArray()
-                    };
-                    
-                    var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
-                        focusedRichTextEditorRecord.Map
-                    );
-
-                    nextRowMap[nextRowInstance.Key] = nextRowInstance;
-
-                    return focusedRichTextEditorRecord with
-                    {
-                        Map = nextRowMap.ToImmutableDictionary(),
-                        CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 1
-                    };
+                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
+                        defaultTextToken);
                 }
             }
 
             return focusedRichTextEditorRecord;   
+        }
+
+        private static IRichTextEditor InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
+            ITextToken textToken)
+        {
+            var nextMap = new Dictionary<TextTokenKey, ITextToken>(
+                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
+            );
+
+            nextMap[textToken.Key] = textToken;
+            
+            var nextList = new List<TextTokenKey>(
+                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
+            );
+
+            nextList.Add(textToken.Key);
+            
+            var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+            {
+                Map = nextMap.ToImmutableDictionary(),
+                Array = nextList.ToImmutableArray()
+            };
+            
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+
+            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary(),
+                CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 1
+            };
+        }
+        
+        private static IRichTextEditor ReplaceCurrentTokenWith(RichTextEditorRecord focusedRichTextEditorRecord,
+            ITextToken textToken)
+        {
+            var nextMap = new Dictionary<TextTokenKey, ITextToken>(
+                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
+            );
+
+            nextMap[textToken.Key] = textToken;
+
+            var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+            {
+                Map = nextMap.ToImmutableDictionary()
+            };
+            
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+
+            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary()
+            };
         }
     }
 }
