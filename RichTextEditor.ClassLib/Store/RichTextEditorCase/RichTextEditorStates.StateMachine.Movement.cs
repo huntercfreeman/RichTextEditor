@@ -15,6 +15,36 @@ public partial record RichTextEditorStates
         public static IRichTextEditor HandleMovement(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
+            switch (keyDownEventRecord.Key)
+            {
+                case KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY:
+                case KeyboardKeyFacts.AlternateMovementKeys.ARROW_LEFT_KEY:
+                    var currentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>();
+
+                    var replacementCurrentToken = currentToken with
+                        {
+                            IndexInPlainText = currentToken.IndexInPlainText == 0
+                                ? null
+                                : currentToken.IndexInPlainText - 1
+                        };
+
+                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+                    if (replacementCurrentToken.IndexInPlainText is null) 
+                        SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+                    break;
+                case KeyboardKeyFacts.MovementKeys.ARROW_DOWN_KEY:
+                case KeyboardKeyFacts.AlternateMovementKeys.ARROW_DOWN_KEY:
+                    break;
+                case KeyboardKeyFacts.MovementKeys.ARROW_UP_KEY:
+                case KeyboardKeyFacts.AlternateMovementKeys.ARROW_UP_KEY:
+                    break;
+                case KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY:
+                case KeyboardKeyFacts.AlternateMovementKeys.ARROW_RIGHT_KEY:
+                    break;
+            }
+
             return focusedRichTextEditorRecord;
         }
     }
