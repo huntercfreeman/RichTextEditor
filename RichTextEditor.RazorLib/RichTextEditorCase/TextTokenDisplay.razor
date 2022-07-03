@@ -5,6 +5,8 @@
     @switch (TextToken.Kind)
     {
         case TextTokenKind.StartOfRow:
+            <CharacterRenderer Character="@string.Empty"
+                               ShouldDisplayCursor="TextToken.IndexInPlainText is not null" />
             break;
         case TextTokenKind.Default:
             <text>

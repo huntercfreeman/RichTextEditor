@@ -14,9 +14,11 @@
             {
                 var index = i;
                 var rowKey = rowKeys[index];
-
-                <RichTextEditorRowDisplay RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
-                                          Index="index" />
+                
+                <CascadingValue Value="_isFocused">
+                    <RichTextEditorRowDisplay RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
+                                              Index="index" />
+                </CascadingValue>
             }
         }
 </div>
