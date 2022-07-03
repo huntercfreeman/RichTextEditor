@@ -28,8 +28,25 @@ public partial record RichTextEditorStates
 
         public RichTextEditorRowKey CurrentRichTextEditorRowKey => Array[CurrentRowIndex];
         public IRichTextEditorRow CurrentRichTextEditorRow => Map[CurrentRichTextEditorRowKey];
+        private RichTextEditorRow StateMachineCurrentRichTextEditorRow => Map[CurrentRichTextEditorRowKey]
+            as RichTextEditorRow
+            ?? throw new ApplicationException($"Expected {nameof(RichTextEditorRow)}");
         
         public TextTokenKey CurrentTextTokenKey => CurrentRichTextEditorRow.Array[CurrentTokenIndex];
         public ITextToken CurrentTextToken => CurrentRichTextEditorRow.Map[CurrentTextTokenKey];
+
+        public T GetCurrentTextTokenAs<T>()
+            where T : class
+        {
+            return CurrentTextToken as T
+                ?? throw new ApplicationException($"Expected {typeof(T).Name}");
+        }
+        
+        public T GetCurrentRichTextEditorRowAs<T>()
+            where T : class
+        {
+            return CurrentRichTextEditorRow as T
+                ?? throw new ApplicationException($"Expected {typeof(T).Name}");
+        }
     }
 }
