@@ -7,10 +7,21 @@
         case TextTokenKind.StartOfRow:
             break;
         case TextTokenKind.Default:
-            <text>@TextToken.PlainText</text>
+            <text>
+                @{
+                    for (int i = 0; i < TextToken.PlainText.Length; i++)
+                    {
+                        var index = i;
+
+                        <CharacterRenderer Character="@TextToken.PlainText[index].ToString()"
+                                           ShouldDisplayCursor="(TextToken.IndexInPlainText ?? -1) == index" />
+                    }
+                }
+            </text>
             break;
         case TextTokenKind.Whitespace:
-            <text>@((MarkupString) TextToken.PlainText.EscapeHtml())</text>
+            <CharacterRenderer Character="@TextToken.PlainText.EscapeHtml()"
+                               ShouldDisplayCursor="TextToken.IndexInPlainText is not null" />
             break;
     }
 </span>
