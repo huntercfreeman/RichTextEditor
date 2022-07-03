@@ -56,7 +56,40 @@ public partial record RichTextEditorStates
                         Map = nextRowMap.ToImmutableDictionary()
                     };
                 }
-                
+                else
+                {
+                    var defaultTextToken = new DefaultTextToken
+                    {
+                        Content = keyDownEventRecord.Key
+                    };
+                    
+                    var nextMap = new Dictionary<TextTokenKey, ITextToken>(
+                        focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
+                    );
+
+                    nextMap[defaultTextToken.Key] = defaultTextToken;
+                    
+                    var nextList = new List<TextTokenKey>(
+                        focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
+                    );
+
+                    nextList.Add(defaultTextToken.Key);
+                    
+                    var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                    {
+                        Map = nextMap.ToImmutableDictionary(),
+                        Array = nextList.ToImmutableArray()
+                    };
+                    
+                    var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                        focusedRichTextEditorRecord.Map
+                    );
+
+                    return focusedRichTextEditorRecord with
+                    {
+                        Map = nextRowMap.ToImmutableDictionary()
+                    };
+                }
             }
 
             return focusedRichTextEditorRecord;   
