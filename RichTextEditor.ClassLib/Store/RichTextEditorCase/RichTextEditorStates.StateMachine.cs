@@ -11,7 +11,7 @@ public partial record RichTextEditorStates
 {
     private class StateMachine
     {
-        public static RichTextEditorRecord HandleKeyDownEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
+        public static IRichTextEditor HandleKeyDownEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
             KeyDownEventRecord keyDownEventRecord)
         {
             if (KeyboardKeyFacts.IsWhitespaceKey(keyDownEventRecord))
@@ -30,8 +30,7 @@ public partial record RichTextEditorStates
             {
                 return focusedRichTextEditorRecord with
                 {
-                    Content = new StringBuilder(
-                        focusedRichTextEditorRecord.Content.ToString() + keyDownEventRecord.Key)
+                    
                 };
             }
 

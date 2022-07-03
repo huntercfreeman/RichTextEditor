@@ -10,9 +10,26 @@ namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 public partial record RichTextEditorStates
 {
-    private record RichTextEditorRecord(RichTextEditorKey RichTextEditorKey) : IRichTextEditor
+    private record RichTextEditorRecord(RichTextEditorKey RichTextEditorKey, 
+        ImmutableDictionary<RichTextEditorRowKey, IRichTextEditorRow> Map, 
+        ImmutableArray<RichTextEditorRowKey> Array,
+        int CurrentRowIndex,
+        int CurrentTokenIndex)
+            : IRichTextEditor
     {
-        public StringBuilder Content { get; init; } = new();
-        public string Text => Content.ToString();
+        public RichTextEditorRecord() : this(RichTextEditorKey.NewRichTextEditorKey(), 
+            new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>().ToImmutableDictionary(),
+            new RichTextEditorRowKey[0].ToImmutableArray(),
+            CurrentRowIndex: 0,
+            CurrentTokenIndex: 0)
+        {
+            
+        }
+
+        public RichTextEditorRowKey CurrentRichTextEditorRowKey => Array[CurrentRowIndex];
+        public IRichTextEditorRow CurrentRichTextEditorRow => Map[CurrentRichTextEditorRowKey];
+        
+        public TextTokenKey CurrentTextTokenKey => CurrentRichTextEditorRow.Array[CurrentTokenIndex];
+        public ITextToken CurrentTextToken => CurrentRichTextEditorRow.Map[CurrentTextTokenKey];
     }
 }
