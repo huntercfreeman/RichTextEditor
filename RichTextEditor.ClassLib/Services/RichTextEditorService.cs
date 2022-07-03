@@ -7,22 +7,67 @@ using RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 namespace RichTextEditor.ClassLib.Services;
 
-public class RichTextEditorService : IRichTextEditorService
+public class RichTextEditorService : IRichTextEditorService, IDisposable
 {
-    private readonly IDispatcher dispatcher;
+    private readonly IDispatcher _dispatcher;
+    private readonly IState<RichTextEditorStates> _richTextEditorStatesWrap;
 
-    public RichTextEditorService(IDispatcher dispatcher)
+    private readonly SemaphoreSlim _onRichTextEditorConstructedActionsSemaphoreSlim = new(1, 1);
+    private readonly Dictionary<RichTextEditorKey, Func<Task>> _onRichTextEditorConstructedActionMap = new();
+
+    public RichTextEditorService(IDispatcher dispatcher, IState<RichTextEditorStates> richTextEditorStatesWrap)
     {
-        this.dispatcher = dispatcher;
+        _dispatcher = dispatcher;
+        _richTextEditorStatesWrap = richTextEditorStatesWrap;
+
+        _richTextEditorStatesWrap.StateChanged += OnRichTextEditorStatesWrapStateChanged;
     }
 
-    public void ConstructRichTextEditor(RichTextEditorKey richTextEditorKey)
+    private async void OnRichTextEditorStatesWrapStateChanged(object? sender, EventArgs e)
     {
-        dispatcher.Dispatch(new ConstructRichTextEditorRecordAction(richTextEditorKey));
+        try
+        {
+            await _onRichTextEditorConstructedActionsSemaphoreSlim.WaitAsync();
+
+            var onRichTextEditorConstructedActions = _onRichTextEditorConstructedActionMap.AsEnumerable();
+
+            foreach (var pair in onRichTextEditorConstructedActions)
+            {
+                if (_richTextEditorStatesWrap.Value.Map.ContainsKey(pair.Key)) 
+                {
+                    await pair.Value.Invoke();
+                    _onRichTextEditorConstructedActionMap.Remove(pair.Key);
+                }
+            }
+        }
+        finally
+        {
+            _onRichTextEditorConstructedActionsSemaphoreSlim.Release();
+        }
+    }
+
+    public async Task ConstructRichTextEditorAsync(RichTextEditorKey richTextEditorKey, Func<Task> richTextEditorWasConstructedCallback)
+    {
+        try
+        {
+            await _onRichTextEditorConstructedActionsSemaphoreSlim.WaitAsync();
+            _onRichTextEditorConstructedActionMap.Add(richTextEditorKey, richTextEditorWasConstructedCallback);
+        }
+        finally
+        {
+            _onRichTextEditorConstructedActionsSemaphoreSlim.Release();
+        }
+
+        _dispatcher.Dispatch(new ConstructRichTextEditorRecordAction(richTextEditorKey));
     }
     
     public void DeconstructRichTextEditor(RichTextEditorKey richTextEditorKey)
     {
-        dispatcher.Dispatch(new DeconstructRichTextEditorRecordAction(richTextEditorKey));
+        _dispatcher.Dispatch(new DeconstructRichTextEditorRecordAction(richTextEditorKey));
+    }
+
+    public void Dispose()
+    {
+        _richTextEditorStatesWrap.StateChanged -= OnRichTextEditorStatesWrapStateChanged;
     }
 }

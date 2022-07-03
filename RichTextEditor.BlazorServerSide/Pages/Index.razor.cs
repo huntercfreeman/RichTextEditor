@@ -14,10 +14,20 @@ public partial class Index : ComponentBase, IDisposable
     private IRichTextEditorService RichTextEditorService { get; set; } = null!;
 
     private RichTextEditorKey _richTextEditorKey = RichTextEditorKey.NewRichTextEditorKey();
-
+    private bool _richTextEditorWasInitialized;
+    
     protected override void OnInitialized()
     {
-        RichTextEditorService.ConstructRichTextEditor(_richTextEditorKey);
+        _ = Task.Run(async () => 
+            {
+                await RichTextEditorService
+                    .ConstructRichTextEditorAsync(_richTextEditorKey, 
+                        async () => 
+                        {
+                            _richTextEditorWasInitialized = true;
+                            await InvokeAsync(StateHasChanged);
+                        });
+            });
 
         base.OnInitialized();
     }
