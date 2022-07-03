@@ -1,37 +1,10 @@
 <div class="rte_rich-text-editor-display @IsFocusedCssClass"
      @onclick="FocusInputFocusTrapOnClick">
 
-    @* 
-        Blazor does not allow conditional 'onkeydown:preventDefault'
-        from what I can tell. 
-        
-        If the user is on the _inputFocusTrap,
-        the input: 'shift + tab' will set focus to this so they can escape so to speak
-        the focus trap. This is still awkward though they'd have to input: 'shift + tab' twice.
-    *@
-    <input @ref="_beforeInputFocusTrap"
-           class="rte_visually-hidden rte_unselectable" />
-
-    @* 
-        Blazor does not allow conditional 'onkeydown:preventDefault'
-        from what I can tell.
-    *@
     <input @ref="_inputFocusTrap"
-           @onkeydown:preventDefault="true"
            @onkeydown="OnKeyDown"
            @onfocusin="OnFocusIn"
            @onfocusout="OnFocusOut"
-           class="rte_visually-hidden rte_unselectable" />
-
-    @* 
-        Blazor does not allow conditional 'onkeydown:preventDefault'
-        from what I can tell. 
-        
-        If the user is on the _inputFocusTrap,
-        the input: 'tab' will set focus to this so they can escape so to speak
-        the focus trap. This is still awkward though they'd have to input: 'tab' twice.
-    *@
-    <input @ref="_afterInputFocusTrap"
            class="rte_visually-hidden rte_unselectable" />
 
     @RichTextEditorSelector.Value.Text

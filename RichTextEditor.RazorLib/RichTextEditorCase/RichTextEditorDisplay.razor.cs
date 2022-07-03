@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using RichTextEditor.ClassLib.Keyboard;
 using RichTextEditor.ClassLib.Store.KeyDownEventCase;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
@@ -17,6 +18,8 @@ public partial class RichTextEditorDisplay : ComponentBase
     private IStateSelection<RichTextEditorStates, IRichTextEditor> RichTextEditorSelector { get; set; } = null!;
     [Inject]
     private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
 
     [Parameter]
     public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
@@ -27,10 +30,7 @@ public partial class RichTextEditorDisplay : ComponentBase
         ? "rte_focused"
         : "";
 
-    private ElementReference _beforeInputFocusTrap;
-    // TODO: _beforeInputFocusTrap, and _afterInputFocusTrap are incredibly awkward and the user can type into them and the text will be 'written' but never seen causing memory to be eaten with time if they type into them but this is likely inconsequential and instead escaping the focus trap should be reworked entirely.
     private ElementReference _inputFocusTrap;
-    private ElementReference _afterInputFocusTrap;
 
     protected override void OnInitialized()
     {
@@ -41,25 +41,15 @@ public partial class RichTextEditorDisplay : ComponentBase
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == KeyboardKeyFacts.WhitespaceKeys.TAB_KEY &&
-            e.ShiftKey) 
-        {
-            _beforeInputFocusTrap.FocusAsync();
-        }
-        else if (e.Key == KeyboardKeyFacts.WhitespaceKeys.TAB_KEY) 
-        {
-            _afterInputFocusTrap.FocusAsync();
-        }
-        else
-        {
-            Dispatcher.Dispatch(new KeyDownEventAction(RichTextEditorKey, new ClassLib.Keyboard.KeyDownEventRecord(
-                e.Key,
-                e.Code,
-                e.CtrlKey,
-                e.ShiftKey,
-                e.AltKey
-            )));
-        }
+        Dispatcher.Dispatch(new KeyDownEventAction(RichTextEditorKey, new ClassLib.Keyboard.KeyDownEventRecord(
+            e.Key,
+            e.Code,
+            e.CtrlKey,
+            e.ShiftKey,
+            e.AltKey
+        )));
+
+        JsRuntime.InvokeVoidAsync("richTextEditor.clearInputElement", _inputFocusTrap);
     }
     
     private void OnFocusIn()

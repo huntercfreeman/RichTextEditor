@@ -1,4 +1,4 @@
-window.blazorStudioComponents = {
+window.richTextEditor = {
   initOnKeyDownProvider: function (onKeyDownProviderDisplayReference) {
       document.addEventListener('keydown', (e) => {
           if (e.key === "Tab") {
@@ -18,5 +18,8 @@ window.blazorStudioComponents = {
 
           onKeyDownProviderDisplayReference.invokeMethodAsync('FireOnKeyDownEvent', dto);
       });
+  },
+  clearInputElement: function (inputElementReference) {
+    inputElementReference.value = "";
   }
 };
