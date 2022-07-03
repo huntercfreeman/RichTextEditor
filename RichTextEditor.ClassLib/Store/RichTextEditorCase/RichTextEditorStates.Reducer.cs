@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Fluxor;
+using RichTextEditor.ClassLib.Keyboard;
 using RichTextEditor.ClassLib.Store.KeyDownEventCase;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
@@ -47,18 +48,15 @@ public partial record RichTextEditorStates
         {
             var nextMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
             var nextList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
-
+            
             var focusedRichTextEditor = previousRichTextEditorStates.Map[keyDownEventAction.FocusedRichTextEditorKey]
                 as RichTextEditorRecord;
 
             if (focusedRichTextEditor is null) 
                 return previousRichTextEditorStates;
-
-            nextMap[keyDownEventAction.FocusedRichTextEditorKey] = focusedRichTextEditor with
-            {
-                Content = new StringBuilder(focusedRichTextEditor.Content.ToString() 
-                                            + keyDownEventAction.KeyDownEventRecord.Key)
-            };
+            
+            nextMap[keyDownEventAction.FocusedRichTextEditorKey] = RichTextEditorStates.StateMachine
+                .HandleKeyDownEvent(focusedRichTextEditor, keyDownEventAction.KeyDownEventRecord);
 
             return new RichTextEditorStates(nextMap.ToImmutableDictionary(), nextList.ToImmutableArray());
         }
