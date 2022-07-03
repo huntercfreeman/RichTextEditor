@@ -23,7 +23,20 @@ public partial record RichTextEditorStates
             CurrentRowIndex: 0,
             CurrentTokenIndex: 0)
         {
-            
+            var startingRow = new RichTextEditorRow();
+
+            Map = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>
+            {
+                { 
+                    startingRow.Key,
+                    startingRow 
+                }
+            }.ToImmutableDictionary();
+
+            Array = new RichTextEditorRowKey[]
+            {
+                startingRow.Key
+            }.ToImmutableArray();
         }
 
         public RichTextEditorRowKey CurrentRichTextEditorRowKey => Array[CurrentRowIndex];

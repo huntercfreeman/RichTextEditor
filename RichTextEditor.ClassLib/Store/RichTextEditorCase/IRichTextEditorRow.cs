@@ -4,7 +4,7 @@ namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 public interface IRichTextEditorRow
 {
-    public RichTextEditorRowKey RichTextEditorRowKey { get; } 
+    public RichTextEditorRowKey Key { get; } 
     public ImmutableDictionary<TextTokenKey, ITextToken> Map { get; }
     public ImmutableArray<TextTokenKey> Array { get; }
 }
