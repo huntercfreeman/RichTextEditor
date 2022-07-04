@@ -19,30 +19,58 @@ public partial record RichTextEditorStates
             {
                 case KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_LEFT_KEY:
+                {
                     var currentToken = focusedRichTextEditorRecord
                         .GetCurrentTextTokenAs<TextTokenBase>();
 
-                    var replacementCurrentToken = currentToken with
+                    if (currentToken.IndexInPlainText == 0)
+                    {
+                        return SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+                    }
+                    else
+                    {
+                        var replacementCurrentToken = currentToken with
                         {
-                            IndexInPlainText = currentToken.IndexInPlainText == 0
-                                ? null
-                                : currentToken.IndexInPlainText - 1
+                            IndexInPlainText = currentToken.IndexInPlainText - 1
                         };
 
-                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-                    if (replacementCurrentToken.IndexInPlainText is null) 
-                        focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+                        focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    }
+                        
                     break;
+                }
                 case KeyboardKeyFacts.MovementKeys.ARROW_DOWN_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_DOWN_KEY:
+                {
                     break;
+                }
                 case KeyboardKeyFacts.MovementKeys.ARROW_UP_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_UP_KEY:
+                {
                     break;
+                }
                 case KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_RIGHT_KEY:
+                {
+                    var currentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>();
+
+                    if (currentToken.IndexInPlainText == currentToken.PlainText.Length - 1)
+                    {
+                        return SetNextTokenAsCurrent(focusedRichTextEditorRecord);
+                    }
+                    else
+                    {
+                        var replacementCurrentToken = currentToken with
+                        {
+                            IndexInPlainText = currentToken.IndexInPlainText + 1
+                        };
+
+                        focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    }
+                    
                     break;
+                }
             }
 
             return focusedRichTextEditorRecord;

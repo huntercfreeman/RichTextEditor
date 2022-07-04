@@ -179,6 +179,59 @@ public partial record RichTextEditorStates
             }
         }
         
+        private static (int rowIndex, int tokenIndex, TextTokenBase token) GetNextTokenTuple(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            var currentRow = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+            if (focusedRichTextEditorRecord.CurrentTokenIndex == currentRow.Array.Length - 1)
+            {
+                if (focusedRichTextEditorRecord.CurrentRowIndex < focusedRichTextEditorRecord.Array.Length - 1) 
+                {
+                    var rowIndex = focusedRichTextEditorRecord.CurrentRowIndex + 1;
+
+                    var rowKey = focusedRichTextEditorRecord.Array[rowIndex];
+
+                    var row = focusedRichTextEditorRecord.Map[rowKey];
+
+                    var tokenIndex = 0;
+
+                    var tokenKey = row.Array[tokenIndex];
+                    
+                    var token = row.Map[tokenKey];
+
+                    return (
+                        rowIndex, 
+                        tokenIndex, 
+                        token 
+                            as TextTokenBase
+                            ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}")
+                    );
+                }
+
+                return (
+                    focusedRichTextEditorRecord.CurrentRowIndex, 
+                    focusedRichTextEditorRecord.CurrentTokenIndex, 
+                    focusedRichTextEditorRecord.GetCurrentTextTokenAs<TextTokenBase>()
+                );
+            }
+            else
+            {
+                var tokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 1;
+
+                var tokenKey = currentRow.Array[tokenIndex];
+                
+                var token = currentRow.Map[tokenKey];
+
+                return (
+                    focusedRichTextEditorRecord.CurrentRowIndex, 
+                    tokenIndex, 
+                    token 
+                        as TextTokenBase
+                        ?? throw new ApplicationException($"Expected {nameof(TextTokenBase)}")
+                );
+            }
+        }
+        
         private static RichTextEditorRecord SetPreviousTokenAsCurrent(RichTextEditorRecord focusedRichTextEditorRecord)
         {
             var replacementCurrentToken = focusedRichTextEditorRecord
@@ -262,6 +315,93 @@ public partial record RichTextEditorStates
                     Map = nextRowMap.ToImmutableDictionary(),
                     CurrentTokenIndex = previousTokenTuple.tokenIndex,
                     CurrentRowIndex = previousTokenTuple.rowIndex
+                };
+            }
+        }
+        
+        private static RichTextEditorRecord SetNextTokenAsCurrent(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            var replacementCurrentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>() with
+                {
+                    IndexInPlainText = null
+                };
+
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+            var nextTokenTuple = GetNextTokenTuple(focusedRichTextEditorRecord);
+
+            if (nextTokenTuple.rowIndex == focusedRichTextEditorRecord.CurrentRowIndex)
+            {
+                if (nextTokenTuple.token.Key == focusedRichTextEditorRecord.CurrentTextTokenKey)
+                {
+                    // No tokens next to me
+                    replacementCurrentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>() with
+                        {
+                            IndexInPlainText = focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1
+                        };
+
+                    return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                }
+
+                // There is a token next to me on my current row
+                var currentRow = focusedRichTextEditorRecord
+                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+                var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
+
+                replacementRowDictionary[nextTokenTuple.token.Key] = nextTokenTuple.token with
+                {
+                    IndexInPlainText = 0
+                };
+
+                var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                    focusedRichTextEditorRecord.Map
+                );
+
+                nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
+                    .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+                    {
+                        Map = replacementRowDictionary.ToImmutableDictionary()
+                    };
+
+                return focusedRichTextEditorRecord with
+                {
+                    Map = nextRowMap.ToImmutableDictionary(),
+                    CurrentTokenIndex = nextTokenTuple.tokenIndex
+                };
+            }
+            else
+            {
+                // There was a next token HOWEVER, it was located on the next row
+                var nextRowKey = focusedRichTextEditorRecord.Array[nextTokenTuple.rowIndex];
+
+                var nextRow = focusedRichTextEditorRecord.Map[nextRowKey]
+                    as RichTextEditorRow
+                    ?? throw new ApplicationException($"Expected {nameof(RichTextEditorRow)}");
+
+                var replacementRowDictionary = new Dictionary<TextTokenKey, ITextToken>(nextRow.Map);
+
+                replacementRowDictionary[nextTokenTuple.token.Key] = nextTokenTuple.token with
+                {
+                    IndexInPlainText = 0
+                };
+
+                var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                    focusedRichTextEditorRecord.Map
+                );
+
+                nextRowMap[nextRowKey] = nextRow with
+                    {
+                        Map = replacementRowDictionary.ToImmutableDictionary()
+                    };
+
+                return focusedRichTextEditorRecord with
+                {
+                    Map = nextRowMap.ToImmutableDictionary(),
+                    CurrentTokenIndex = nextTokenTuple.tokenIndex,
+                    CurrentRowIndex = nextTokenTuple.rowIndex
                 };
             }
         }
