@@ -12,7 +12,7 @@ public partial record RichTextEditorStates
 {
     private partial class StateMachine
     {
-        public static IRichTextEditor HandleWhitespace(RichTextEditorRecord focusedRichTextEditorRecord,
+        public static RichTextEditorRecord HandleWhitespace(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
             if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)

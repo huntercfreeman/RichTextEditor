@@ -12,7 +12,7 @@ public partial record RichTextEditorStates
 {
     private partial class StateMachine
     {
-        public static IRichTextEditor HandleKeyDownEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
+        public static RichTextEditorRecord HandleKeyDownEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
             KeyDownEventRecord keyDownEventRecord)
         {
             if (KeyboardKeyFacts.IsWhitespaceKey(keyDownEventRecord))
@@ -405,5 +405,61 @@ public partial record RichTextEditorStates
                 };
             }
         }
+
+        /// <summary>
+		/// Returns the inclusive starting column index
+		/// </summary>
+		/// <param name="nextPlainTextEditorState"></param>
+		/// <returns></returns>
+		private static int CalculateCurrentTokenColumnIndexRespectiveToRow(
+			RichTextEditorRecord focusedRichTextEditorRecord)
+		{
+			var rollingCount = 0;
+            var currentRow = focusedRichTextEditorRecord
+                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+			foreach (var tokenKey in currentRow.Array)
+			{
+				if (tokenKey == focusedRichTextEditorRecord.CurrentTextToken.Key)
+                {
+					return rollingCount;
+				}
+				else
+				{
+                    var token = currentRow.Map[tokenKey];
+					rollingCount += token.PlainText.Length;
+				}
+			}
+
+			return 0;
+		}
+
+        private static (int inclusiveStartingColumnIndex, int exclusiveEndingColumnIndex, TextTokenBase token) CalculateTokenAtColumnIndexRespectiveToRow(
+			RichTextEditorRecord focusedRichTextEditorRecord,
+			RichTextEditorRow row,
+			int columnIndex)
+		{
+			var rollingCount = 0;
+
+            for (int i = 0; i < row.Array.Length; i++)
+			{
+                TextTokenKey tokenKey = row.Array[i];
+                ITextToken token = row.Map[tokenKey];
+
+				rollingCount += token.PlainText.Length;
+
+				if (rollingCount > columnIndex || (i == row.Array.Length - 1))
+				{
+                    return (
+                        rollingCount - token.PlainText.Length,
+                        rollingCount,
+                        token as TextTokenBase
+                            ?? throw new ApplicationException($"Expected type {nameof(TextTokenBase)}")
+                    );
+                }
+			}
+
+            throw new ApplicationException("Row was empty");
+		}
     }
 }

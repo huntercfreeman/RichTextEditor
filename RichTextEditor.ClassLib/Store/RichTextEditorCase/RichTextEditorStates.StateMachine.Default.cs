@@ -12,7 +12,7 @@ public partial record RichTextEditorStates
 {
     private partial class StateMachine
     {
-        public static IRichTextEditor HandleDefault(RichTextEditorRecord focusedRichTextEditorRecord, 
+        public static RichTextEditorRecord HandleDefault(RichTextEditorRecord focusedRichTextEditorRecord, 
             KeyDownEventRecord keyDownEventRecord)
         {
             if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
