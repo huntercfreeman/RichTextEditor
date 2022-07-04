@@ -20,6 +20,34 @@ public partial record RichTextEditorStates
                 case KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_LEFT_KEY:
                 {
+                    if (keyDownEventRecord.CtrlWasPressed)
+                    {
+                        var previousTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
+                        var previousTokenWasWhitespace = 
+                            focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+
+                        var targetTokenTuple = GetPreviousTokenTuple(focusedRichTextEditorRecord);
+
+                        while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenTuple.token.Key)
+                        {
+                            focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                                keyDownEventRecord with
+                                {
+                                    CtrlWasPressed = false
+                                });
+                        }
+
+                        var currentTokenIsWhitespace = focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+
+                        if ((previousTokenWasWhitespace && currentTokenIsWhitespace) &&
+                            (previousTokenKey != focusedRichTextEditorRecord.CurrentTextTokenKey))
+                        {
+                            return HandleMovement(focusedRichTextEditorRecord, keyDownEventRecord);
+                        }
+
+                        return focusedRichTextEditorRecord;
+                    }
+
                     var currentToken = focusedRichTextEditorRecord
                         .GetCurrentTextTokenAs<TextTokenBase>();
 
