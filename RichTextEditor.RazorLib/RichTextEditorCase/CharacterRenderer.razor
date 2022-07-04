@@ -1,6 +1,8 @@
-@((MarkupString) Character)
+<span class="rte_character-renderer">
+    @((MarkupString) Character)
 
-@if(IsFocused && ShouldDisplayCursor) 
-{
-    <Cursor />
-}
+    @if(IsFocused && ShouldDisplayCursor) 
+    {
+        <Cursor />
+    }
+</span>
