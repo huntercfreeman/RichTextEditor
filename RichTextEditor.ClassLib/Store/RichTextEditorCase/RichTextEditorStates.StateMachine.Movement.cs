@@ -96,6 +96,7 @@ public partial record RichTextEditorStates
                             {
                                 IndexInPlainText = focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1
                             };
+
                         focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
                     }
                     
@@ -104,6 +105,62 @@ public partial record RichTextEditorStates
                 case KeyboardKeyFacts.MovementKeys.ARROW_UP_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_UP_KEY:
                 {
+                    if (focusedRichTextEditorRecord.CurrentRowIndex <= 0)
+                        return focusedRichTextEditorRecord;
+
+                    var inclusiveStartingColumnIndexOfCurrentToken =
+                        CalculateCurrentTokenColumnIndexRespectiveToRow(focusedRichTextEditorRecord);
+
+                    var currentColumnIndexWithIndexInPlainTextAccountedFor = inclusiveStartingColumnIndexOfCurrentToken +
+                        focusedRichTextEditorRecord.CurrentTextToken
+                            .IndexInPlainText!.Value;
+
+                    var rowAboveKey = focusedRichTextEditorRecord.Array[focusedRichTextEditorRecord.CurrentRowIndex - 1];
+
+                    var rowAbove = focusedRichTextEditorRecord.Map[rowAboveKey];
+
+                    var tokenInRowAboveMetaData = CalculateTokenAtColumnIndexRespectiveToRow(
+                        focusedRichTextEditorRecord,
+                        rowAbove
+                            as RichTextEditorRow
+                            ?? throw new ApplicationException($"Expected type {nameof(RichTextEditorRow)}"),
+                        currentColumnIndexWithIndexInPlainTextAccountedFor);
+
+                    while (focusedRichTextEditorRecord.CurrentTextToken.Key !=
+                        tokenInRowAboveMetaData.token.Key)
+                    {
+                        focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, new KeyDownEventRecord(
+                            KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+                            KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+                            false,
+                            keyDownEventRecord.ShiftWasPressed,
+                            false
+                        ));
+                    }
+
+                    if (currentColumnIndexWithIndexInPlainTextAccountedFor <
+                        tokenInRowAboveMetaData.exclusiveEndingColumnIndex)
+                    {
+                        var replacementCurrentToken = focusedRichTextEditorRecord
+                            .GetCurrentTextTokenAs<TextTokenBase>() with
+                            {
+                                IndexInPlainText = currentColumnIndexWithIndexInPlainTextAccountedFor -
+                                    tokenInRowAboveMetaData.inclusiveStartingColumnIndex
+                            };
+                            
+                        focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    }
+                    else
+                    {
+                        var replacementCurrentToken = focusedRichTextEditorRecord
+                            .GetCurrentTextTokenAs<TextTokenBase>() with
+                            {
+                                IndexInPlainText = focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1
+                            };
+                            
+                        focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    }
+                    
                     break;
                 }
                 case KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY:
