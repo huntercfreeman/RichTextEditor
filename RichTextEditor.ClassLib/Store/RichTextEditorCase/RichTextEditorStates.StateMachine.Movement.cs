@@ -22,8 +22,8 @@ public partial record RichTextEditorStates
                 {
                     if (keyDownEventRecord.CtrlWasPressed)
                     {
-                        var previousTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
-                        var previousTokenWasWhitespace = 
+                        var rememberTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
+                        var rememberTokenWasWhitespace = 
                             focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
                         var targetTokenTuple = GetPreviousTokenTuple(focusedRichTextEditorRecord);
@@ -39,8 +39,8 @@ public partial record RichTextEditorStates
 
                         var currentTokenIsWhitespace = focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
-                        if ((previousTokenWasWhitespace && currentTokenIsWhitespace) &&
-                            (previousTokenKey != focusedRichTextEditorRecord.CurrentTextTokenKey))
+                        if ((rememberTokenWasWhitespace && currentTokenIsWhitespace) &&
+                            (rememberTokenKey != focusedRichTextEditorRecord.CurrentTextTokenKey))
                         {
                             return HandleMovement(focusedRichTextEditorRecord, keyDownEventRecord);
                         }
@@ -194,6 +194,44 @@ public partial record RichTextEditorStates
                 case KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_RIGHT_KEY:
                 {
+                    if (keyDownEventRecord.CtrlWasPressed)
+                    {
+                        var rememberTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
+                        var rememberTokenWasWhitespace = 
+                            focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+
+                        var targetTokenTuple = GetNextTokenTuple(focusedRichTextEditorRecord);
+
+                        while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenTuple.token.Key)
+                        {
+                            focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                                keyDownEventRecord with
+                                {
+                                    CtrlWasPressed = false
+                                });
+                        }
+
+                        var currentTokenIsWhitespace = focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+
+                        if ((rememberTokenWasWhitespace && currentTokenIsWhitespace) &&
+                            (rememberTokenKey != focusedRichTextEditorRecord.CurrentTextTokenKey))
+                        {
+                            return HandleMovement(focusedRichTextEditorRecord, keyDownEventRecord);
+                        }
+
+                        while (focusedRichTextEditorRecord.CurrentTextToken.IndexInPlainText != 
+                               focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
+                        {
+                            focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                                keyDownEventRecord with
+                                {
+                                    CtrlWasPressed = false
+                                });
+                        }
+
+                        return focusedRichTextEditorRecord;
+                    }
+                    
                     var currentToken = focusedRichTextEditorRecord
                         .GetCurrentTextTokenAs<TextTokenBase>();
 
