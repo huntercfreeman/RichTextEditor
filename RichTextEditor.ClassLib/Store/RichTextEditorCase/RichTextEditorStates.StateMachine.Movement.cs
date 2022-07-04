@@ -29,6 +29,10 @@ public partial record RichTextEditorStates
                 case KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY:
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_RIGHT_KEY:
                     return HandleArrowRight(focusedRichTextEditorRecord, keyDownEventRecord);
+                case KeyboardKeyFacts.MovementKeys.HOME_KEY:
+                    return HandleArrowHome(focusedRichTextEditorRecord, keyDownEventRecord);
+                case KeyboardKeyFacts.MovementKeys.END_KEY:
+                    return HandleArrowEnd(focusedRichTextEditorRecord, keyDownEventRecord);
             }
 
             return focusedRichTextEditorRecord;
@@ -269,6 +273,18 @@ public partial record RichTextEditorStates
                 focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
             }
             
+            return focusedRichTextEditorRecord;
+        }
+        
+        public static RichTextEditorRecord HandleArrowHome(RichTextEditorRecord focusedRichTextEditorRecord,
+            KeyDownEventRecord keyDownEventRecord)
+        {
+            return focusedRichTextEditorRecord;
+        }
+        
+        public static RichTextEditorRecord HandleArrowEnd(RichTextEditorRecord focusedRichTextEditorRecord,
+            KeyDownEventRecord keyDownEventRecord)
+        {
             return focusedRichTextEditorRecord;
         }
     }
