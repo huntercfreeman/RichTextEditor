@@ -22,8 +22,17 @@
             </text>
             break;
         case TextTokenKind.Whitespace:
-            <CharacterRenderer Character="@TextToken.PlainText.EscapeHtml()"
-                               ShouldDisplayCursor="TextToken.IndexInPlainText is not null" />
+            <text>
+                @{
+                    for (int i = 0; i < TextToken.PlainText.Length; i++)
+                    {
+                        var index = i;
+
+                        <CharacterRenderer Character="@TextToken.PlainText[index].ToString().EscapeHtml()"
+                                            ShouldDisplayCursor="(TextToken.IndexInPlainText ?? -1) == index" />
+                    }
+                }
+            </text>
             break;
     }
 </span>

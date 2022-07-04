@@ -44,12 +44,14 @@ public partial record RichTextEditorStates
                     _content = " ";
                     break;
                 case KeyboardKeyFacts.WhitespaceKeys.TAB_CODE:
-                    _content = "\t";
+                    _content = "    ";
                     break;
                 default:
                     throw new ApplicationException(
                         $"The whitespace key: {keyDownEventRecord.Key} was not recognized.");
             }
+
+            IndexInPlainText = _content.Length - 1;
         }
         
         public override string PlainText => _content;

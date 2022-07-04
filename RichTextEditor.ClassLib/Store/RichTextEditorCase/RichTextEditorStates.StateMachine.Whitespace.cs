@@ -29,10 +29,7 @@ public partial record RichTextEditorStates
 
                 focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
-                var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord)
-                {
-                    IndexInPlainText = 0
-                };
+                var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
 
                 return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
                     whitespaceTextToken);
