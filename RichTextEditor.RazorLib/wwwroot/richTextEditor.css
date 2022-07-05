@@ -44,7 +44,7 @@
         background-color: #2b2b2b;
     }
 
-    60% {
+    50% {
         background-color: transparent;
     }
 }
@@ -60,4 +60,16 @@
     animation-name: rte_blink;
     animation-duration: 1.5s;
     animation-iteration-count: infinite
+}
+
+.rte_rich-text-editor-row-display {
+    border: 2px solid transparent;
+}
+
+.rte_focused .rte_rich-text-editor-row-display.rte_active {
+    border: 2px solid #008cf3;
+}
+
+.rte_rich-text-editor-row-display.rte_active {
+    border: 2px solid #606060;
 }

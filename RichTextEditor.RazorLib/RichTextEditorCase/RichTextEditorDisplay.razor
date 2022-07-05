@@ -1,3 +1,7 @@
+@using Fluxor.Blazor.Web.Components
+
+@inherits FluxorComponent
+
 <div class="rte_rich-text-editor-display @IsFocusedCssClass"
      @onclick="FocusInputFocusTrapOnClick">
 
@@ -6,19 +10,23 @@
            @onfocusin="OnFocusIn"
            @onfocusout="OnFocusOut"
            class="rte_visually-hidden rte_unselectable" />
+    
+    <CascadingValue Value="_isFocused">
+        <CascadingValue Name="CurrentRowIndex" Value="RichTextEditorSelector.Value.CurrentRowIndex">
+            <span>CurrentRowIndex: @RichTextEditorSelector.Value.CurrentRowIndex</span>
+            @{
+                var rowKeys = RichTextEditorSelector.Value.Array;
 
-        @{
-            var rowKeys = RichTextEditorSelector.Value.Array;
-
-            for (int i = 0; i < rowKeys.Length; i++)
-            {
-                var index = i;
-                var rowKey = rowKeys[index];
-                
-                <CascadingValue Value="_isFocused">
-                    <RichTextEditorRowDisplay RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
+                for (int i = 0; i < rowKeys.Length; i++)
+                {
+                    var index = i;
+                    var rowKey = rowKeys[index];
+                    
+                    <RichTextEditorRowDisplay @key="rowKey"
+                                              RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
                                               Index="index" />
-                </CascadingValue>
+                }
             }
-        }
+        </CascadingValue>
+    </CascadingValue>
 </div>

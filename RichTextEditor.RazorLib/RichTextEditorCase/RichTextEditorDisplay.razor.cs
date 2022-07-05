@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fluxor;
+using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -12,7 +13,7 @@ using RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
-public partial class RichTextEditorDisplay : ComponentBase
+public partial class RichTextEditorDisplay : FluxorComponent
 {
     [Inject]
     private IStateSelection<RichTextEditorStates, IRichTextEditor> RichTextEditorSelector { get; set; } = null!;
