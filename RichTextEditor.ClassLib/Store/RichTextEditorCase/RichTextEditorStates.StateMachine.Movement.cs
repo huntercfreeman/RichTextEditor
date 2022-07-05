@@ -30,9 +30,9 @@ public partial record RichTextEditorStates
                 case KeyboardKeyFacts.AlternateMovementKeys.ARROW_RIGHT_KEY:
                     return HandleArrowRight(focusedRichTextEditorRecord, keyDownEventRecord);
                 case KeyboardKeyFacts.MovementKeys.HOME_KEY:
-                    return HandleArrowHome(focusedRichTextEditorRecord, keyDownEventRecord);
+                    return HandleHome(focusedRichTextEditorRecord, keyDownEventRecord);
                 case KeyboardKeyFacts.MovementKeys.END_KEY:
-                    return HandleArrowEnd(focusedRichTextEditorRecord, keyDownEventRecord);
+                    return HandleEnd(focusedRichTextEditorRecord, keyDownEventRecord);
             }
 
             return focusedRichTextEditorRecord;
@@ -276,13 +276,37 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord;
         }
         
-        public static RichTextEditorRecord HandleArrowHome(RichTextEditorRecord focusedRichTextEditorRecord,
+        public static RichTextEditorRecord HandleHome(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
+            TextTokenKey targetTokenKey;
+
+            if (keyDownEventRecord.CtrlWasPressed)
+            {
+                var firstRowKey = focusedRichTextEditorRecord.Array[0];
+                var firstRow = focusedRichTextEditorRecord.Map[firstRowKey];
+
+                targetTokenKey = firstRow.Array[0];
+            }
+            else
+            {
+                targetTokenKey = focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array[0];
+            }
+
+            while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
+            {
+                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+                        KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+                        false,
+                        keyDownEventRecord.ShiftWasPressed,
+                        false));
+            }
+
             return focusedRichTextEditorRecord;
         }
         
-        public static RichTextEditorRecord HandleArrowEnd(RichTextEditorRecord focusedRichTextEditorRecord,
+        public static RichTextEditorRecord HandleEnd(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
             return focusedRichTextEditorRecord;
