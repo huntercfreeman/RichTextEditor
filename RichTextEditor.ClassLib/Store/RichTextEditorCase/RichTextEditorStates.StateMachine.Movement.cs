@@ -303,12 +303,51 @@ public partial record RichTextEditorStates
                         false));
             }
 
+            // A while loop to move to IndexInPlainText of 0 is unnecessary
+            // as the home key will only ever move position to the start of a row
+            // which only can have IndexInPlainText of 0 as it is the '\n' character with length of 1
+
             return focusedRichTextEditorRecord;
         }
         
         public static RichTextEditorRecord HandleEnd(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
+            TextTokenKey targetTokenKey;
+
+            if (keyDownEventRecord.CtrlWasPressed)
+            {
+                var lastRowKey = focusedRichTextEditorRecord.Array[^1];
+                var lastRow = focusedRichTextEditorRecord.Map[lastRowKey];
+
+                targetTokenKey = lastRow.Array[^1];
+            }
+            else
+            {
+                targetTokenKey = focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array[^1];
+            }
+
+            while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
+            {
+                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
+                        KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
+                        false,
+                        keyDownEventRecord.ShiftWasPressed,
+                        false));
+            }
+
+            while (focusedRichTextEditorRecord.CurrentTextToken.IndexInPlainText != 
+                   focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
+            {
+                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
+                        KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
+                        false,
+                        keyDownEventRecord.ShiftWasPressed,
+                        false));
+            }
+
             return focusedRichTextEditorRecord;
         }
     }
