@@ -115,7 +115,7 @@ public partial record RichTextEditorStates
                 focusedRichTextEditorRecord.Array
             );
 
-            nextRowList.Add(constructedRowInstance.Key);
+            nextRowList.Insert(focusedRichTextEditorRecord.CurrentRowIndex + 1, constructedRowInstance.Key);
 
             return focusedRichTextEditorRecord with
             {
