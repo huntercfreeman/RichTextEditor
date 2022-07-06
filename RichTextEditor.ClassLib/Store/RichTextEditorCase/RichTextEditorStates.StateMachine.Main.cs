@@ -29,7 +29,7 @@ public partial record RichTextEditorStates
             }
             else
             {
-                return HandleDefault(focusedRichTextEditorRecord, keyDownEventRecord);
+                return HandleDefaultInsert(focusedRichTextEditorRecord, keyDownEventRecord);
             }
         }
 
@@ -64,6 +64,85 @@ public partial record RichTextEditorStates
             {
                 Map = nextRowMap.ToImmutableDictionary(),
                 CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 1
+            };
+        }
+        
+        private static RichTextEditorRecord RemoveCurrentToken(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.StartOfRow)
+            {
+                if (focusedRichTextEditorRecord.CurrentRowIndex == 0)
+                {
+                    return focusedRichTextEditorRecord;
+                }
+                
+                if (focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array.Length == 1)
+                {
+                    return RemoveCurrentRow(focusedRichTextEditorRecord);
+                }
+
+                // TODO: Move current row to end of previous row
+                return focusedRichTextEditorRecord;
+            }
+
+            var toBeRemovedToken = focusedRichTextEditorRecord.CurrentTextToken;
+            var toBeChangedRowIndex = focusedRichTextEditorRecord.CurrentRowIndex;
+            var toBeChangedTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex;
+
+            focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+
+            var nextMap = new Dictionary<TextTokenKey, ITextToken>(
+                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
+            );
+
+            nextMap.Remove(toBeRemovedToken.Key);
+            
+            var nextList = new List<TextTokenKey>(
+                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
+            );
+
+            nextList.Remove(toBeRemovedToken.Key);
+            
+            var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+            {
+                Map = nextMap.ToImmutableDictionary(),
+                Array = nextList.ToImmutableArray()
+            };
+            
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+
+            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary(),
+            };
+        }
+
+        private static RichTextEditorRecord RemoveCurrentRow(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            var toBeDeletedRow = focusedRichTextEditorRecord.CurrentRichTextEditorRow;
+
+            focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+            
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+
+            nextRowMap.Remove(toBeDeletedRow.Key);
+            
+            var nextRowList = new List<RichTextEditorRowKey>(
+                focusedRichTextEditorRecord.Array
+            );
+
+            nextRowList.Remove(toBeDeletedRow.Key);
+
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary(),
+                Array = nextRowList.ToImmutableArray()
             };
         }
         
