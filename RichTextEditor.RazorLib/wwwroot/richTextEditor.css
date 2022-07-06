@@ -83,8 +83,9 @@
 
 .rte_rich-text-editor-line-number-display {
     display: inline-flex;
+    margin-right: 1ch;
 }
 
 .rte_focused .rte_rich-text-editor-row-display.rte_active .rte_rich-text-editor-line-number-display {
-    color: rgb(0, 152, 194);
+    color: rgb(255, 0, 174);
 }
