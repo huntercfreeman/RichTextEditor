@@ -62,14 +62,24 @@
     animation-iteration-count: infinite
 }
 
-.rte_rich-text-editor-row-display {
+.rte_rich-text-editor-row-display-body {
     border: 2px solid transparent;
 }
 
-.rte_focused .rte_rich-text-editor-row-display.rte_active {
+.rte_focused .rte_rich-text-editor-row-display.rte_active .rte_rich-text-editor-row-display-body {
     border: 2px solid #008cf3;
 }
 
-.rte_rich-text-editor-row-display.rte_active {
+.rte_rich-text-editor-row-display-body {
     border: 2px solid #606060;
+    display: inline-flex;
+}
+
+.rte_rich-text-editor-line-number-display {
+    background-color: aqua;
+    display: inline-flex;
+}
+
+.rte_focused .rte_rich-text-editor-row-display.rte_active .rte_rich-text-editor-line-number-display {
+    color: red;
 }

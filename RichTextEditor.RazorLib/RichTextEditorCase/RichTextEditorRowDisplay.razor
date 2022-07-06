@@ -1,11 +1,15 @@
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <div class="rte_rich-text-editor-row-display @IsActiveCss">
-    <RichTextEditorLineNumberDisplay IndexOfRow="Index" />
+    <RichTextEditorLineNumberDisplay IndexOfRow="Index"
+                                     MostDigitsInARowNumber="MostDigitsInARowNumber" />
 
-    <span>Index: @Index</span>
-    @foreach(var textTokenKey in RichTextEditorRow.Array)
-    {
-        <TextTokenDisplay TextToken="RichTextEditorRow.Map[textTokenKey]" />
-    }
+    
+    <div class="rte_rich-text-editor-row-display-body"
+         style="@WidthStyleCss">
+        @foreach(var textTokenKey in RichTextEditorRow.Array)
+        {
+            <TextTokenDisplay TextToken="RichTextEditorRow.Map[textTokenKey]" />
+        }
+    </div>
 </div>

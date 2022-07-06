@@ -13,8 +13,8 @@
     
     <CascadingValue Value="_isFocused">
         <CascadingValue Name="CurrentRowIndex" Value="RichTextEditorSelector.Value.CurrentRowIndex">
-            <span>CurrentRowIndex: @RichTextEditorSelector.Value.CurrentRowIndex</span>
             @{
+                var mostDigitsInARowNumber = RichTextEditorSelector.Value.Array.Length.ToString().Length;
                 var rowKeys = RichTextEditorSelector.Value.Array;
 
                 for (int i = 0; i < rowKeys.Length; i++)
@@ -24,7 +24,8 @@
                     
                     <RichTextEditorRowDisplay @key="rowKey"
                                               RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
-                                              Index="index" />
+                                              Index="index"
+                                              MostDigitsInARowNumber="mostDigitsInARowNumber" />
                 }
             }
         </CascadingValue>

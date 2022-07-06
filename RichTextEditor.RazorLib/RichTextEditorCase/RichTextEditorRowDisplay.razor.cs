@@ -18,8 +18,12 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
     public IRichTextEditorRow RichTextEditorRow { get; set; } = null!;
     [Parameter]
     public int Index { get; set; }
+    [Parameter]
+    public int MostDigitsInARowNumber { get; set; }
 
     private string IsActiveCss => RichTextEditorCurrentRowIndex == Index
         ? "rte_active"
         : string.Empty;
+
+    private string WidthStyleCss => $"width: calc(100% - {MostDigitsInARowNumber}ch);";
 }
