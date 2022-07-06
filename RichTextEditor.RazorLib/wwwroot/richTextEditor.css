@@ -37,6 +37,9 @@
 
 .rte_character-renderer {
     position: relative;
+    display: inline-flex;
+    width: 1ch;
+    height: 1em;
 }
 
 @keyframes rte_blink {
