@@ -73,9 +73,13 @@ public partial record RichTextEditorStates
                 return RemoveStartOfRowToken(focusedRichTextEditorRecord);
 
             var toBeRemovedTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
-            var toBeChangedRow = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+            var toBeChangedRowKey = focusedRichTextEditorRecord.CurrentRichTextEditorRowKey;
 
             focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+
+            var toBeChangedRow = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
+                as RichTextEditorRow
+                ?? throw new ApplicationException($"Expected typeof, '{nameof(RichTextEditorRow)}'");
 
             var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(
                 toBeChangedRow.Map
