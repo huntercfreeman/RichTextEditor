@@ -16,7 +16,7 @@ namespace RichTextEditor.RazorLib.RichTextEditorCase;
 public partial class RichTextEditorDisplay : FluxorComponent
 {
     [Inject]
-    private IStateSelection<RichTextEditorStates, IRichTextEditor> RichTextEditorSelector { get; set; } = null!;
+    private IStateSelection<RichTextEditorStates, IRichTextEditor?> RichTextEditorSelector { get; set; } = null!;
     [Inject]
     private IDispatcher Dispatcher { get; set; } = null!;
     [Inject]
@@ -35,7 +35,11 @@ public partial class RichTextEditorDisplay : FluxorComponent
 
     protected override void OnInitialized()
     {
-        RichTextEditorSelector.Select(x => x.Map[RichTextEditorKey]);
+        RichTextEditorSelector.Select(x => 
+        {
+            x.Map.TryGetValue(RichTextEditorKey, out var value);
+            return value;
+        });
 
         base.OnInitialized();
     }

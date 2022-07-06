@@ -21,10 +21,11 @@ public partial record RichTextEditorStates
             var nextRichTextEditorMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
             var nextRichTextEditorList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
 
-            var richTextEditor = new RichTextEditorRecord();
+            var richTextEditor = new 
+                RichTextEditorRecord(constructRichTextEditorRecordAction.RichTextEditorKey);
 
             nextRichTextEditorMap[constructRichTextEditorRecordAction.RichTextEditorKey] = richTextEditor;
-            nextRichTextEditorList.Add(richTextEditor.RichTextEditorKey);
+            nextRichTextEditorList.Add(constructRichTextEditorRecordAction.RichTextEditorKey);
 
             return new RichTextEditorStates(nextRichTextEditorMap.ToImmutableDictionary(), nextRichTextEditorList.ToImmutableArray());
         }

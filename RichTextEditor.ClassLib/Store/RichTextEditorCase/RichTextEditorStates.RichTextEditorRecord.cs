@@ -17,7 +17,7 @@ public partial record RichTextEditorStates
         int CurrentTokenIndex)
             : IRichTextEditor
     {
-        public RichTextEditorRecord() : this(RichTextEditorKey.NewRichTextEditorKey(), 
+        public RichTextEditorRecord(RichTextEditorKey richTextEditorKey) : this(richTextEditorKey, 
             new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>().ToImmutableDictionary(),
             new RichTextEditorRowKey[0].ToImmutableArray(),
             CurrentRowIndex: 0,
