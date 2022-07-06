@@ -28,7 +28,7 @@
 
 .rte_rich-text-editor-display.rte_focused {
     border: 2px solid #0000ff;
-    box-shadow: 3px 3px red, -1em 0 .4em olive;
+    box-shadow: 0px 0px 6px rgb(0, 0, 0);
 }
 
 .rte_rich-text-editor-text-token-display:hover {
