@@ -1,5 +1,12 @@
 <span class="rte_character-renderer">
-    @((MarkupString) Character)
+    @if (Character == string.Empty)
+    {
+        <span style="width: 4px; height: 100%;"></span>
+    }
+    else
+    {
+        @((MarkupString) Character)
+    }
 
     @if(IsFocused && ShouldDisplayCursor) 
     {

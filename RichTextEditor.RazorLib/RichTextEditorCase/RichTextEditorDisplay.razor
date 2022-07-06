@@ -11,7 +11,7 @@
            @onfocusout="OnFocusOut"
            class="rte_visually-hidden rte_unselectable" />
     
-    <CascadingValue Value="_isFocused">
+    <CascadingValue Value="_isFocused || true">
         <CascadingValue Name="CurrentRowIndex" Value="RichTextEditorSelector.Value.CurrentRowIndex">
             @{
                 var mostDigitsInARowNumber = RichTextEditorSelector.Value.Array.Length.ToString().Length;
