@@ -27,10 +27,10 @@ public partial record RichTextEditorStates
         public static RichTextEditorRecord HandleBackspaceKey(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            // if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
-            // {
-            //     return HandleDefaultBackspace(focusedRichTextEditorRecord, keyDownEventRecord);
-            // }
+            if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
+            {
+                return HandleDefaultBackspace(focusedRichTextEditorRecord, keyDownEventRecord);
+            }
 
             return RemoveCurrentToken(focusedRichTextEditorRecord);
         }

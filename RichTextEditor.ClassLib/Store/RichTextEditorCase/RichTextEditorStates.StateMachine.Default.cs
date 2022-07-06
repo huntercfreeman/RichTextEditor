@@ -53,39 +53,34 @@ public partial record RichTextEditorStates
         public static RichTextEditorRecord HandleDefaultBackspace(RichTextEditorRecord focusedRichTextEditorRecord, 
             KeyDownEventRecord keyDownEventRecord)
         {
-            if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
+            var previousDefaultTextToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
+
+            var firstSplitContent = previousDefaultTextToken.Content
+                .Substring(0, previousDefaultTextToken.IndexInPlainText!.Value);
+
+            var secondSplitContent = string.Empty;
+
+            if (previousDefaultTextToken.IndexInPlainText != previousDefaultTextToken.Content.Length - 1)
             {
-                var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
-
-                var content = previousDefaultToken.Content + keyDownEventRecord.Key;
-
-                var nextDefaultToken = previousDefaultToken with
-                {
-                    Content = content,
-                    IndexInPlainText = content.Length - 1
-                };
-                
-                return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
+                secondSplitContent = previousDefaultTextToken.Content
+                    .Substring(previousDefaultTextToken.IndexInPlainText!.Value + 1);
             }
-            else
-            {
-                var replacementCurrentToken = focusedRichTextEditorRecord
-                    .GetCurrentTextTokenAs<TextTokenBase>() with
-                    {
-                        IndexInPlainText = null
-                    };
 
-                focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-                var defaultTextToken = new DefaultTextToken
+            var nextDefaultToken = previousDefaultTextToken with
                 {
-                    Content = keyDownEventRecord.Key,
-                    IndexInPlainText = 0
+                    Content = firstSplitContent + secondSplitContent,
+                    IndexInPlainText = previousDefaultTextToken.IndexInPlainText - 1
                 };
-                
-                return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                    defaultTextToken);
-            }
+
+            if (nextDefaultToken.Content.Length == 0)
+                return RemoveCurrentToken(focusedRichTextEditorRecord);
+
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
+
+            if (nextDefaultToken.IndexInPlainText == -1)
+                return SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+
+            return focusedRichTextEditorRecord;
         }
     }
 }
