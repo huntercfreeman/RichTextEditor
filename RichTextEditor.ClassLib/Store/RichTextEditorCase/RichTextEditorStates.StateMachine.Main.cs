@@ -85,25 +85,24 @@ public partial record RichTextEditorStates
                 return focusedRichTextEditorRecord;
             }
 
-            var toBeRemovedToken = focusedRichTextEditorRecord.CurrentTextToken;
-            var toBeChangedRowIndex = focusedRichTextEditorRecord.CurrentRowIndex;
-            var toBeChangedTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex;
+            var toBeRemovedTokenKey = focusedRichTextEditorRecord.CurrentTextTokenKey;
+            var toBeChangedRow = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
             focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
 
             var nextMap = new Dictionary<TextTokenKey, ITextToken>(
-                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
+                toBeChangedRow.Map
             );
 
-            nextMap.Remove(toBeRemovedToken.Key);
+            nextMap.Remove(toBeRemovedTokenKey);
             
             var nextList = new List<TextTokenKey>(
-                focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
+                toBeChangedRow.Array
             );
 
-            nextList.Remove(toBeRemovedToken.Key);
+            nextList.Remove(toBeRemovedTokenKey);
             
-            var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
+            var nextRowInstance = toBeChangedRow with
             {
                 Map = nextMap.ToImmutableDictionary(),
                 Array = nextList.ToImmutableArray()
