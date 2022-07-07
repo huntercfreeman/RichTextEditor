@@ -279,35 +279,51 @@ public partial record RichTextEditorStates
         public static RichTextEditorRecord HandleHome(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            TextTokenKey targetTokenKey;
+            int targetRowIndex = keyDownEventRecord.CtrlWasPressed
+                ? 0
+                : focusedRichTextEditorRecord.CurrentRowIndex;
 
-            if (keyDownEventRecord.CtrlWasPressed)
-            {
-                var firstRowKey = focusedRichTextEditorRecord.Array[0];
-                var firstRow = focusedRichTextEditorRecord.Map[firstRowKey];
+            var currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
 
-                targetTokenKey = firstRow.Array[0];
-            }
-            else
+            var replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = null
+                };
+            
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+    
+            focusedRichTextEditorRecord = focusedRichTextEditorRecord with
             {
-                targetTokenKey = focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array[0];
-            }
+                CurrentTokenIndex = 0,
+                CurrentRowIndex = targetRowIndex
+            };
 
-            while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
-            {
-                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
-                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
-                        KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
-                        false,
-                        keyDownEventRecord.ShiftWasPressed,
-                        false));
-            }
+            currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
+
+            replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = currentToken.PlainText.Length - 1
+                };
+
+            return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+            // while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
+            // {
+            //     focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
+            //         new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+            //             KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
+            //             false,
+            //             keyDownEventRecord.ShiftWasPressed,
+            //             false));
+            // }
 
             // A while loop to move to IndexInPlainText of 0 is unnecessary
             // as the home key will only ever move position to the start of a row
             // which only can have IndexInPlainText of 0 as it is the '\n' character with length of 1
 
-            return focusedRichTextEditorRecord;
+            // return focusedRichTextEditorRecord;
         }
         
         public static RichTextEditorRecord HandleEnd(RichTextEditorRecord focusedRichTextEditorRecord,
