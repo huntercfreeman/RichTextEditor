@@ -36,8 +36,7 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
         ? "rte_focused"
         : "";
     
-    private string InputFocusTrapTopStyleCss => $"top: calc({RichTextEditorSelector.Value!.CurrentRowIndex + 1}em + {RichTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px)";
-
+    private string InputFocusTrapTopStyleCss => $"top: calc({RichTextEditorSelector.Value!.CurrentRowIndex + 1}em + {RichTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
 
     protected override void OnInitialized()
     {

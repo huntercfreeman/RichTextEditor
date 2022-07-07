@@ -33,25 +33,33 @@ window.richTextEditor = {
   scrollIntoViewIfOutOfViewport: function (inputElementReference) {
     const value = this.elementByIdIsIntersecting.get(inputElementReference.id);
 
+    console.log(value.intersectionRatio);
     if (value.intersectionRatio >= 1) {
+      console.log("in viewport value.intersectionRatio: " + value.intersectionRatio);
       return;
     }
+
+    console.log("NOT value.intersectionRatio: " + value.intersectionRatio);
     
     const activeRow = document.getElementById(this.getActiveRowId(value.richTextEditorGuid));
 
     let richTextEditorDisplay = document.getElementById(this.getRichTextEditorId(value.richTextEditorGuid));
 
-    if (richTextEditorDisplay.scrollTop < activeRow.offsetTop) {
-      richTextEditorDisplay.scrollTop = activeRow.offsetTop + activeRow.offsetHeight;
-    }
-    else {
-      richTextEditorDisplay.scrollTop = activeRow.offsetTop - activeRow.offsetHeight;
-    }
+    richTextEditorDisplay.scrollTop = activeRow.offsetTop - 25;
+    
+    // if (richTextEditorDisplay.scrollTop < activeRow.offsetTop) {
+    //   richTextEditorDisplay.scrollTop = activeRow.offsetTop + activeRow.offsetHeight;
+    // }
+    // else {
+    //   richTextEditorDisplay.scrollTop = activeRow.offsetTop;
+    // }
   },
   initializeIntersectionObserver: function () {
     let options = {
         rootMargin: '0px',
-        threshold: 1
+        threshold: [
+          0, .25, .50, .75, 1
+        ]
     }
 
     this.intersectionObserver = new IntersectionObserver((entries) => this.handleThresholdChange(entries, this.elementByIdIsIntersecting), options);
