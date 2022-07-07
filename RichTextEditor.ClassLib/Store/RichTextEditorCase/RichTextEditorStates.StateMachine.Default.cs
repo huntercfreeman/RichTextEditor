@@ -19,12 +19,13 @@ public partial record RichTextEditorStates
             {
                 var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
 
-                var content = previousDefaultToken.Content + keyDownEventRecord.Key;
+                var content = previousDefaultToken.Content
+                    .Insert(previousDefaultToken.IndexInPlainText!.Value + 1, keyDownEventRecord.Key);
 
                 var nextDefaultToken = previousDefaultToken with
                 {
                     Content = content,
-                    IndexInPlainText = content.Length - 1
+                    IndexInPlainText = previousDefaultToken.IndexInPlainText + 1
                 };
                 
                 return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
