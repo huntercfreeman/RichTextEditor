@@ -31,11 +31,13 @@ window.richTextEditor = {
     inputElementReference.value = "";
   },
   scrollIntoViewIfOutOfViewport: function (inputElementReference) {
-    const elementPosition = inputElementReference.getBoundingClientRect().top;
-
     const value = this.elementByIdIsIntersecting.get(inputElementReference.id);
+
+    if (value.intersectionRatio >= 1) {
+      return;
+    }
+    
     const activeRow = document.getElementById(this.getActiveRowId(value.richTextEditorGuid));
-    const offsetPosition = elementPosition - activeRow.offsetHeight;
 
     let richTextEditorDisplay = document.getElementById(this.getRichTextEditorId(value.richTextEditorGuid));
 
@@ -45,11 +47,6 @@ window.richTextEditor = {
     else {
       richTextEditorDisplay.scrollTop = activeRow.offsetTop - activeRow.offsetHeight;
     }
-    
-    // richTextEditorDisplay.scrollBy({
-    //      top: offsetPosition,
-    //      behavior: "smooth"
-    // });
   },
   initializeIntersectionObserver: function () {
     let options = {
