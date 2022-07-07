@@ -13,7 +13,7 @@ using RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
-public partial class RichTextEditorDisplay : FluxorComponent
+public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
 {
     [Inject]
     private IStateSelection<RichTextEditorStates, IRichTextEditor?> RichTextEditorSelector { get; set; } = null!;
@@ -26,10 +26,17 @@ public partial class RichTextEditorDisplay : FluxorComponent
     public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
 
     private bool _isFocused;
+    // This is not thread safe however this is solely used to scroll
+    // the Input Focus Trap into view
+    private int _scrollInputFocusTrapIntoViewRequests = 0;
+
+    private string InputFocusTrapId => $"rte_focus-trap_{RichTextEditorKey.Guid}";
 
     private string IsFocusedCssClass => _isFocused
         ? "rte_focused"
         : "";
+    
+    private string InputFocusTrapTopStyleCss => $"top: calc({RichTextEditorSelector.Value!.CurrentRowIndex + 1}em + {RichTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px)";
 
     private ElementReference _inputFocusTrap;
 
@@ -44,8 +51,22 @@ public partial class RichTextEditorDisplay : FluxorComponent
         base.OnInitialized();
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+           JsRuntime.InvokeVoidAsync("richTextEditor.subscribeScrollIntoView",
+                InputFocusTrapId,
+                DotNetObjectReference.Create(this));
+        }
+
+        base.OnAfterRender(firstRender);
+    }
+
     private void OnKeyDown(KeyboardEventArgs e)
     {
+        _scrollInputFocusTrapIntoViewRequests++;
+
         Dispatcher.Dispatch(new KeyDownEventAction(RichTextEditorKey, new ClassLib.Keyboard.KeyDownEventRecord(
             e.Key,
             e.Code,
@@ -53,14 +74,6 @@ public partial class RichTextEditorDisplay : FluxorComponent
             e.ShiftKey,
             e.AltKey
         )));
-
-        JsRuntime.InvokeVoidAsync("richTextEditor.clearInputElement", _inputFocusTrap);
-
-        // TODO: Conditionally call 'preventdefault' for onkeydown events
-        if (e.Code == KeyboardKeyFacts.WhitespaceKeys.TAB_CODE)
-        {
-            _inputFocusTrap.FocusAsync();
-        }
     }
     
     private void OnFocusIn()
@@ -76,5 +89,25 @@ public partial class RichTextEditorDisplay : FluxorComponent
     private void FocusInputFocusTrapOnClick()
     {
         _inputFocusTrap.FocusAsync();
+    }
+    
+    [JSInvokable]
+    public void ScrollIntoViewAsync()
+    {
+        if (_scrollInputFocusTrapIntoViewRequests > 0)
+        {
+            _scrollInputFocusTrapIntoViewRequests = 0;
+
+            JsRuntime.InvokeVoidAsync("richTextEditor.scrollIntoView",
+                _inputFocusTrap);    
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        JsRuntime.InvokeVoidAsync("richTextEditor.disposeScrollIntoView",
+            InputFocusTrapId);
+        
+        base.Dispose(disposing);
     }
 }
