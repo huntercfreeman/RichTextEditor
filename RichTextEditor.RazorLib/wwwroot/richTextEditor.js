@@ -1,6 +1,12 @@
 window.richTextEditor = {
   intersectionObserver: 0,
-  dotNetObjectReferences: new Map(),
+  elementByIdIsIntersecting: new Map(),
+  getActiveRowId: function (richTextEditorGuid) {
+    return `rte_active-row_${richTextEditorGuid}`;
+  },
+  getRichTextEditorId: function (richTextEditorGuid) {
+    return `rte_rich-text-editor-display_${richTextEditorGuid}`;
+  },
   initOnKeyDownProvider: function (onKeyDownProviderDisplayReference) {
       document.addEventListener('keydown', (e) => {
           if (e.key === "Tab") {
@@ -24,36 +30,58 @@ window.richTextEditor = {
   clearInputElement: function (inputElementReference) {
     inputElementReference.value = "";
   },
-  scrollIntoView: function (inputElementReference) {
-    inputElementReference.scrollIntoView();
+  scrollIntoViewIfOutOfViewport: function (inputElementReference) {
+    const elementPosition = inputElementReference.getBoundingClientRect().top;
+
+    const value = this.elementByIdIsIntersecting.get(inputElementReference.id);
+    const activeRow = document.getElementById(this.getActiveRowId(value.richTextEditorGuid));
+    const offsetPosition = elementPosition - activeRow.offsetHeight;
+
+    let richTextEditorDisplay = document.getElementById(this.getRichTextEditorId(value.richTextEditorGuid));
+
+    if (richTextEditorDisplay.scrollTop < activeRow.offsetTop) {
+      richTextEditorDisplay.scrollTop = activeRow.offsetTop + activeRow.offsetHeight;
+    }
+    else {
+      richTextEditorDisplay.scrollTop = activeRow.offsetTop - activeRow.offsetHeight;
+    }
+    
+    // richTextEditorDisplay.scrollBy({
+    //      top: offsetPosition,
+    //      behavior: "smooth"
+    // });
   },
   initializeIntersectionObserver: function () {
     let options = {
         rootMargin: '0px',
-        threshold: 0.25
+        threshold: 1
     }
 
-    this.intersectionObserver = new IntersectionObserver((entries) => this.handleThresholdChange(entries, this.dotNetObjectReferences), options);
+    this.intersectionObserver = new IntersectionObserver((entries) => this.handleThresholdChange(entries, this.elementByIdIsIntersecting), options);
   },
-  subscribeScrollIntoView: function (elementId, dotNetObjectReference) {
+  subscribeScrollIntoView: function (elementId, richTextEditorGuid) {
+    this.elementByIdIsIntersecting.set(elementId, {
+      intersectionRatio: 0,
+      richTextEditorGuid: richTextEditorGuid
+    });
+
     let element = document.getElementById(elementId);
-
-    this.dotNetObjectReferences.set(elementId, dotNetObjectReference);
-
     this.intersectionObserver.observe(element);
   },
   disposeScrollIntoView: function (elementId) {
     let element = document.getElementById(elementId);
     this.intersectionObserver.unobserve(element);
   },
-  handleThresholdChange: function (entries, dotNetObjectReferences) {
+  handleThresholdChange: function (entries, elementByIdIsIntersecting) {
     for (let i = 0; i < entries.length; i++) {
         let currentEntry = entries[i];
 
-        if (!currentEntry.isIntersecting) {
-            dotNetObjectReferences.get(currentEntry.target.id)
-                .invokeMethodAsync("ScrollIntoViewAsync");
-        }
+        let previousValue = elementByIdIsIntersecting.get(currentEntry.target.id);
+
+        elementByIdIsIntersecting.set(currentEntry.target.id, {
+          intersectionRatio: currentEntry.intersectionRatio,
+          richTextEditorGuid: previousValue.richTextEditorGuid
+        });
     }
   }
 };

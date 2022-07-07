@@ -1,6 +1,7 @@
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<div class="rte_rich-text-editor-row-display @IsActiveCss">
+<div id="@IsActiveRowId"
+     class="rte_rich-text-editor-row-display @IsActiveCss">
     <RichTextEditorLineNumberDisplay IndexOfRow="Index"
                                      MostDigitsInARowNumber="MostDigitsInARowNumber" />
 

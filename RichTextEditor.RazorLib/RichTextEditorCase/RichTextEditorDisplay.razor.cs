@@ -26,11 +26,11 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
     public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
 
     private bool _isFocused;
-    // This is not thread safe however this is solely used to scroll
-    // the Input Focus Trap into view
-    private int _scrollInputFocusTrapIntoViewRequests = 0;
+    private ElementReference _inputFocusTrap;
 
+    private string RichTextEditorDisplayId => $"rte_rich-text-editor-display_{RichTextEditorKey.Guid}";
     private string InputFocusTrapId => $"rte_focus-trap_{RichTextEditorKey.Guid}";
+    private string ActiveRowId => $"rte_active-row_{RichTextEditorKey.Guid}";
 
     private string IsFocusedCssClass => _isFocused
         ? "rte_focused"
@@ -38,7 +38,6 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
     
     private string InputFocusTrapTopStyleCss => $"top: calc({RichTextEditorSelector.Value!.CurrentRowIndex + 1}em + {RichTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px)";
 
-    private ElementReference _inputFocusTrap;
 
     protected override void OnInitialized()
     {
@@ -57,16 +56,17 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
         {
            JsRuntime.InvokeVoidAsync("richTextEditor.subscribeScrollIntoView",
                 InputFocusTrapId,
-                DotNetObjectReference.Create(this));
+                RichTextEditorKey.Guid);
         }
+
+        JsRuntime.InvokeVoidAsync("richTextEditor.scrollIntoViewIfOutOfViewport",
+            _inputFocusTrap);
 
         base.OnAfterRender(firstRender);
     }
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        _scrollInputFocusTrapIntoViewRequests++;
-
         Dispatcher.Dispatch(new KeyDownEventAction(RichTextEditorKey, new ClassLib.Keyboard.KeyDownEventRecord(
             e.Key,
             e.Code,
@@ -89,18 +89,6 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
     private void FocusInputFocusTrapOnClick()
     {
         _inputFocusTrap.FocusAsync();
-    }
-    
-    [JSInvokable]
-    public void ScrollIntoViewAsync()
-    {
-        if (_scrollInputFocusTrapIntoViewRequests > 0)
-        {
-            _scrollInputFocusTrapIntoViewRequests = 0;
-
-            JsRuntime.InvokeVoidAsync("richTextEditor.scrollIntoView",
-                _inputFocusTrap);    
-        }
     }
 
     protected override void Dispose(bool disposing)

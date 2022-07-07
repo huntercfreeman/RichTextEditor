@@ -13,7 +13,9 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
 {
     [CascadingParameter(Name="CurrentRowIndex")]
     public int RichTextEditorCurrentRowIndex { get; set; }
-    
+    [CascadingParameter(Name="ActiveRowId")]
+    public string ActiveRowId { get; set; } = null!;
+
     [Parameter]
     public IRichTextEditorRow RichTextEditorRow { get; set; } = null!;
     [Parameter]
@@ -26,4 +28,8 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
         : string.Empty;
 
     private string WidthStyleCss => $"width: calc(100% - {MostDigitsInARowNumber}ch);";
+    
+    private string IsActiveRowId => RichTextEditorCurrentRowIndex == Index
+        ? ActiveRowId
+        : string.Empty;
 }
