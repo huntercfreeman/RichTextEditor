@@ -276,6 +276,13 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord;
         }
         
+        // Note originally I thought I had to 'walk' the cursor the entire distance
+        // inorder to highlight any text traveled over.
+        //
+        // When doing highlighting instead keep track of the before 
+        // movement document index (the character index within the document itself)
+        // and the document index of the ending position. This is not the exact word
+        // for word solution but just a general reminder of the idea.
         public static RichTextEditorRecord HandleHome(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
@@ -308,63 +315,44 @@ public partial record RichTextEditorStates
                 };
 
             return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-            // while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
-            // {
-            //     focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
-            //         new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
-            //             KeyboardKeyFacts.MovementKeys.ARROW_LEFT_KEY,
-            //             false,
-            //             keyDownEventRecord.ShiftWasPressed,
-            //             false));
-            // }
-
-            // A while loop to move to IndexInPlainText of 0 is unnecessary
-            // as the home key will only ever move position to the start of a row
-            // which only can have IndexInPlainText of 0 as it is the '\n' character with length of 1
-
-            // return focusedRichTextEditorRecord;
         }
         
         public static RichTextEditorRecord HandleEnd(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            TextTokenKey targetTokenKey;
+            int targetRowIndex = keyDownEventRecord.CtrlWasPressed
+                ? focusedRichTextEditorRecord.Array.Length - 1
+                : focusedRichTextEditorRecord.CurrentRowIndex;
 
-            if (keyDownEventRecord.CtrlWasPressed)
+            var currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
+
+            var replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = null
+                };
+            
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+    
+            var row = focusedRichTextEditorRecord
+                .Map[focusedRichTextEditorRecord
+                    .Array[targetRowIndex]];
+    
+            focusedRichTextEditorRecord = focusedRichTextEditorRecord with
             {
-                var lastRowKey = focusedRichTextEditorRecord.Array[^1];
-                var lastRow = focusedRichTextEditorRecord.Map[lastRowKey];
+                CurrentTokenIndex = row.Array.Length - 1,
+                CurrentRowIndex = targetRowIndex
+            };
 
-                targetTokenKey = lastRow.Array[^1];
-            }
-            else
-            {
-                targetTokenKey = focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array[^1];
-            }
+            currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
 
-            while (focusedRichTextEditorRecord.CurrentTextTokenKey != targetTokenKey)
-            {
-                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
-                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
-                        KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
-                        false,
-                        keyDownEventRecord.ShiftWasPressed,
-                        false));
-            }
+            replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = currentToken.PlainText.Length - 1
+                };
 
-            while (focusedRichTextEditorRecord.CurrentTextToken.IndexInPlainText != 
-                   focusedRichTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
-            {
-                focusedRichTextEditorRecord = HandleMovement(focusedRichTextEditorRecord, 
-                    new KeyDownEventRecord(KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
-                        KeyboardKeyFacts.MovementKeys.ARROW_RIGHT_KEY,
-                        false,
-                        keyDownEventRecord.ShiftWasPressed,
-                        false));
-            }
-
-            return focusedRichTextEditorRecord;
+            return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
         }
     }
 }
