@@ -15,24 +15,24 @@ public partial record RichTextEditorStates
         public static RichTextEditorRecord HandleWhitespace(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)
+            var currentToken = focusedRichTextEditorRecord
+                    .GetCurrentTextTokenAs<TextTokenBase>();
+
+            if (currentToken.IndexInPlainText!.Value != currentToken.PlainText.Length - 1)
             {
-                return InsertNewLine(focusedRichTextEditorRecord);
+                return SplitCurrentToken(
+                    focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord)
+                );
             }
             else
             {
-                var currentToken = focusedRichTextEditorRecord
-                    .GetCurrentTextTokenAs<TextTokenBase>();
-
-                if (currentToken.IndexInPlainText!.Value != currentToken.PlainText.Length - 1)
+                if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)
                 {
-                    focusedRichTextEditorRecord = SplitCurrentToken(
-                        focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord)
-                    );
+                    return InsertNewLine(focusedRichTextEditorRecord);
                 }
 
                 return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                    whitespaceTextToken);
+                    new WhitespaceTextToken(keyDownEventRecord));
             }
         }
     }
