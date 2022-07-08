@@ -196,18 +196,58 @@ public partial record RichTextEditorStates
 
             focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
+            var currentRow = focusedRichTextEditorRecord
+                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+            var replacementTokenMap = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
+            var replacementTokenList = new List<TextTokenKey>(currentRow.Array);
+
+            // Ensure initialization of row with proper 
+            // tokens from one location instead of duplicating that logic
             var constructedRowInstance = new RichTextEditorRow();
+        
+            var constructedTokenMap = new Dictionary<TextTokenKey, ITextToken>(constructedRowInstance.Map);
+            var constructedTokenList = new List<TextTokenKey>(constructedRowInstance.Array);
             
+            for (int i = focusedRichTextEditorRecord.CurrentTokenIndex + 1; i < currentRow.Array.Length; i++)
+            {
+                var tokenKey = currentRow.Array[i];
+                var token = currentRow.Map[tokenKey];
+                
+                replacementTokenList.Remove(token.Key);
+                replacementTokenMap.Remove(token.Key);
+
+                constructedTokenMap.Add(token.Key, token);
+                constructedTokenList.Add(token.Key);
+            }
+
+            var replacementRowInstance = new RichTextEditorRow(
+                currentRow.Key,
+                replacementTokenMap.ToImmutableDictionary(), 
+                replacementTokenList.ToImmutableArray()
+            );
+            
+            constructedRowInstance = new RichTextEditorRow(
+                constructedRowInstance.Key,
+                constructedTokenMap.ToImmutableDictionary(), 
+                constructedTokenList.ToImmutableArray()
+            );
+
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
             );
-
-            nextRowMap.Add(constructedRowInstance.Key, constructedRowInstance);
-
+            
             var nextRowList = new List<RichTextEditorRowKey>(
                 focusedRichTextEditorRecord.Array
             );
 
+            nextRowList.Remove(replacementRowInstance.Key);
+            nextRowMap.Remove(replacementRowInstance.Key);
+            
+            nextRowMap.Add(replacementRowInstance.Key, replacementRowInstance);
+            nextRowList.Insert(focusedRichTextEditorRecord.CurrentRowIndex, replacementRowInstance.Key);
+            
+            nextRowMap.Add(constructedRowInstance.Key, constructedRowInstance);
             nextRowList.Insert(focusedRichTextEditorRecord.CurrentRowIndex + 1, constructedRowInstance.Key);
 
             return focusedRichTextEditorRecord with
