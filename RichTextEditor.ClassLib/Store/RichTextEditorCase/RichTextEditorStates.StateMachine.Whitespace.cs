@@ -20,8 +20,19 @@ public partial record RichTextEditorStates
 
             if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
             {
+                if (KeyboardKeyFacts.WhitespaceKeys.ENTER_CODE == keyDownEventRecord.Code)
+                {
+                    focusedRichTextEditorRecord = SplitCurrentToken(
+                        focusedRichTextEditorRecord,
+                        null
+                    );
+
+                    return InsertNewLine(focusedRichTextEditorRecord);
+                }
+
                 return SplitCurrentToken(
-                    focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord)
+                    focusedRichTextEditorRecord,
+                        new WhitespaceTextToken(keyDownEventRecord)
                 );
             }
             else

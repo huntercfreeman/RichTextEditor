@@ -14,7 +14,7 @@ public partial record RichTextEditorStates
     {
         // Used when cursor is within text and the 'Enter' key is pressed as an example. That token would get split into two separate tokens.
         public static RichTextEditorRecord SplitCurrentToken(RichTextEditorRecord focusedRichTextEditorRecord,
-            TextTokenBase tokenToInsertBetweenSplit)
+            TextTokenBase? tokenToInsertBetweenSplit)
         {
             var currentToken = focusedRichTextEditorRecord
                 .GetCurrentTextTokenAs<TextTokenBase>();
@@ -31,7 +31,7 @@ public partial record RichTextEditorStates
         }
         
         public static RichTextEditorRecord SplitDefaultToken(RichTextEditorRecord focusedRichTextEditorRecord,
-            TextTokenBase tokenToInsertBetweenSplit)
+            TextTokenBase? tokenToInsertBetweenSplit)
         {            
             var rememberCurrentToken = focusedRichTextEditorRecord
                     .GetCurrentTextTokenAs<DefaultTextToken>();
@@ -78,7 +78,10 @@ public partial record RichTextEditorStates
             nextTokenMap.Remove(toBeRemovedTokenKey);
 
             nextTokenMap.Add(tokenFirst.Key, tokenFirst);
-            nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
+
+            if (tokenToInsertBetweenSplit is not null)
+                nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
+            
             nextTokenMap.Add(tokenSecond.Key, tokenSecond);
             
             var nextTokenList = new List<TextTokenKey>(
@@ -90,7 +93,10 @@ public partial record RichTextEditorStates
             int insertionOffset = 0;
 
             nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenFirst.Key);
-            nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenToInsertBetweenSplit.Key);
+            
+            if (tokenToInsertBetweenSplit is not null)
+                nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenToInsertBetweenSplit.Key);
+
             nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenSecond.Key);
             
             var nextRowInstance = toBeChangedRow with
@@ -108,12 +114,13 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord with
             {
                 Map = nextRowMap.ToImmutableDictionary(),
-                CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex + 2
+                CurrentTokenIndex = focusedRichTextEditorRecord.CurrentTokenIndex +
+                    (tokenToInsertBetweenSplit is not null ? 2 : 1)
             };
         }
 
         public static RichTextEditorRecord SplitWhitespaceToken(RichTextEditorRecord focusedRichTextEditorRecord,
-            TextTokenBase tokenToInsertBetweenSplit)
+            TextTokenBase? tokenToInsertBetweenSplit)
         {
             var rememberCurrentToken = focusedRichTextEditorRecord
                     .GetCurrentTextTokenAs<WhitespaceTextToken>();
@@ -171,10 +178,12 @@ public partial record RichTextEditorStates
                 nextTokenList.Insert(rememberTokenIndex + i, spaceWhiteSpaceToken.Key);
             }
 
-            nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
+            if (tokenToInsertBetweenSplit is not null)
+                nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
 
-            nextTokenList.Insert(rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1, 
-                tokenToInsertBetweenSplit.Key);
+            if (tokenToInsertBetweenSplit is not null)
+                nextTokenList.Insert(rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1, 
+                    tokenToInsertBetweenSplit.Key);
             
             var nextRowInstance = toBeChangedRow with
             {
@@ -191,7 +200,8 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord with
             {
                 Map = nextRowMap.ToImmutableDictionary(),
-                CurrentTokenIndex = rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1
+                CurrentTokenIndex = rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 
+                    (tokenToInsertBetweenSplit is not null ? 1 : 0)
             };
         }
     }
