@@ -15,10 +15,18 @@ public partial record RichTextEditorStates
         public static RichTextEditorRecord HandleWhitespace(RichTextEditorRecord focusedRichTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            var currentToken = focusedRichTextEditorRecord
+            var rememberToken = focusedRichTextEditorRecord
                     .GetCurrentTextTokenAs<TextTokenBase>();
+            
+            var replacementCurrentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>() with
+                {
+                    IndexInPlainText = null
+                };
 
-            if (currentToken.IndexInPlainText!.Value != currentToken.PlainText.Length - 1)
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+            if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
             {
                 return SplitCurrentToken(
                     focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord)
