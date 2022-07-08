@@ -32,22 +32,39 @@ public partial record RichTextEditorStates
             }
             else
             {
-                var replacementCurrentToken = focusedRichTextEditorRecord
-                    .GetCurrentTextTokenAs<TextTokenBase>() with
-                    {
-                        IndexInPlainText = null
-                    };
+                var rememberToken = focusedRichTextEditorRecord
+                    .GetCurrentTextTokenAs<TextTokenBase>();
 
-                focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-                var defaultTextToken = new DefaultTextToken
+                if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
                 {
-                    Content = keyDownEventRecord.Key,
-                    IndexInPlainText = 0
-                };
-                
-                return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                    defaultTextToken);
+                    return SplitCurrentToken(
+                        focusedRichTextEditorRecord, 
+                        new DefaultTextToken
+                        {
+                            Content = keyDownEventRecord.Key,
+                            IndexInPlainText = 0
+                        }
+                    );
+                }
+                else
+                {
+                    var replacementCurrentToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>() with
+                        {
+                            IndexInPlainText = null
+                        };
+
+                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+                    var defaultTextToken = new DefaultTextToken
+                    {
+                        Content = keyDownEventRecord.Key,
+                        IndexInPlainText = 0
+                    };
+                    
+                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
+                        defaultTextToken);
+                }
             }
         }
         
