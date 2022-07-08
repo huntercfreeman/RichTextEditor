@@ -36,6 +36,14 @@ public partial record RichTextEditorStates
         private static RichTextEditorRecord InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
             ITextToken textToken)
         {
+            var replacementCurrentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>() with
+                {
+                    IndexInPlainText = null
+                };
+
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
             var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(
                 focusedRichTextEditorRecord.CurrentRichTextEditorRow.Map
             );
@@ -46,7 +54,7 @@ public partial record RichTextEditorStates
                 focusedRichTextEditorRecord.CurrentRichTextEditorRow.Array
             );
 
-            nextTokenList.Add(textToken.Key);
+            nextTokenList.Insert(focusedRichTextEditorRecord.CurrentTokenIndex + 1, textToken.Key);
             
             var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
             {

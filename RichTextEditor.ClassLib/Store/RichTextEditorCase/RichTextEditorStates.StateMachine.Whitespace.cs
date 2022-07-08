@@ -17,14 +17,6 @@ public partial record RichTextEditorStates
         {
             var rememberToken = focusedRichTextEditorRecord
                     .GetCurrentTextTokenAs<TextTokenBase>();
-            
-            var replacementCurrentToken = focusedRichTextEditorRecord
-                .GetCurrentTextTokenAs<TextTokenBase>() with
-                {
-                    IndexInPlainText = null
-                };
-
-            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
             if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
             {
