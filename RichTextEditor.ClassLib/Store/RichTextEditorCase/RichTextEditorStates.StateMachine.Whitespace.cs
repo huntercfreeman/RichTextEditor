@@ -26,17 +26,9 @@ public partial record RichTextEditorStates
 
                 if (currentToken.IndexInPlainText!.Value != currentToken.PlainText.Length - 1)
                 {
-                    var tokens = SplitCurrentToken(focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord));
-
-                    focusedRichTextEditorRecord = RemoveCurrentToken(focusedRichTextEditorRecord);
-
-                    foreach (var token in tokens)
-                    {
-                        focusedRichTextEditorRecord = InsertNewCurrentTokenAfterCurrentPosition(
-                            focusedRichTextEditorRecord,
-                            token
-                        );
-                    }
+                    focusedRichTextEditorRecord = SplitCurrentToken(
+                        focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord)
+                    );
                 }
 
                 return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
