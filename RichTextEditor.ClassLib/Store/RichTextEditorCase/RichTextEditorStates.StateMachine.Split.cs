@@ -118,14 +118,6 @@ public partial record RichTextEditorStates
             var rememberCurrentToken = focusedRichTextEditorRecord
                     .GetCurrentTextTokenAs<WhitespaceTextToken>();
 
-            var replacementCurrentToken = focusedRichTextEditorRecord
-                .GetCurrentTextTokenAs<TextTokenBase>() with
-                {
-                    IndexInPlainText = null
-                };
-
-            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
             if (rememberCurrentToken.WhitespaceKind != WhitespaceKind.Tab)
                 return focusedRichTextEditorRecord;
 
@@ -135,6 +127,14 @@ public partial record RichTextEditorStates
             var toBeChangedRowKey = focusedRichTextEditorRecord.CurrentRichTextEditorRowKey;
 
             focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+
+            var replacementCurrentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>() with
+                {
+                    IndexInPlainText = null
+                };
+
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
             var toBeChangedRow = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
                 as RichTextEditorRow
@@ -160,18 +160,21 @@ public partial record RichTextEditorStates
                 false
             );
 
-            int insertionOffset = 0;
-
-            for (; insertionOffset < 4; insertionOffset++)
+            for (int i = 0; i < 4; i++)
             {
-                var spaceWhiteSpaceToken = new WhitespaceTextToken(spaceKeyDownEventRecord);
+                var spaceWhiteSpaceToken = new WhitespaceTextToken(spaceKeyDownEventRecord)
+                {
+                    IndexInPlainText = null
+                };
 
                 nextTokenMap.Add(spaceWhiteSpaceToken.Key, spaceWhiteSpaceToken);
-                nextTokenList.Insert(rememberTokenIndex + insertionOffset, spaceWhiteSpaceToken.Key);
+                nextTokenList.Insert(rememberTokenIndex + i, spaceWhiteSpaceToken.Key);
             }
 
             nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
-            nextTokenList.Insert(rememberTokenIndex + insertionOffset, tokenToInsertBetweenSplit.Key);
+
+            nextTokenList.Insert(rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1, 
+                tokenToInsertBetweenSplit.Key);
             
             var nextRowInstance = toBeChangedRow with
             {
@@ -188,6 +191,7 @@ public partial record RichTextEditorStates
             return focusedRichTextEditorRecord with
             {
                 Map = nextRowMap.ToImmutableDictionary(),
+                CurrentTokenIndex = rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1
             };
         }
     }
