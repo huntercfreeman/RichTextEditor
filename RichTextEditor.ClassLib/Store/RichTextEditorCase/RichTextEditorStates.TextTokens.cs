@@ -41,9 +41,11 @@ public partial record RichTextEditorStates
             switch (keyDownEventRecord.Code)
             {
                 case KeyboardKeyFacts.WhitespaceKeys.SPACE_CODE:
+                    WhitespaceKind = WhitespaceKind.Space;
                     _content = " ";
                     break;
                 case KeyboardKeyFacts.WhitespaceKeys.TAB_CODE:
+                    WhitespaceKind = WhitespaceKind.Tab;
                     _content = "    ";
                     break;
                 default:
@@ -56,5 +58,7 @@ public partial record RichTextEditorStates
         
         public override string PlainText => _content;
         public override TextTokenKind Kind => TextTokenKind.Whitespace;
+        
+        public WhitespaceKind WhitespaceKind { get; }
     }
 }

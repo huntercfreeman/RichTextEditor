@@ -21,15 +21,23 @@ public partial record RichTextEditorStates
             }
             else
             {
-                var replacementCurrentToken = focusedRichTextEditorRecord
-                    .GetCurrentTextTokenAs<TextTokenBase>() with
+                var currentToken = focusedRichTextEditorRecord
+                    .GetCurrentTextTokenAs<TextTokenBase>();
+
+                if (currentToken.IndexInPlainText!.Value != currentToken.PlainText.Length - 1)
                 {
-                    IndexInPlainText = null
-                };
+                    var tokens = SplitCurrentToken(focusedRichTextEditorRecord, new WhitespaceTextToken(keyDownEventRecord));
 
-                focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+                    focusedRichTextEditorRecord = RemoveCurrentToken(focusedRichTextEditorRecord);
 
-                var whitespaceTextToken = new WhitespaceTextToken(keyDownEventRecord);
+                    foreach (var token in tokens)
+                    {
+                        focusedRichTextEditorRecord = InsertNewCurrentTokenAfterCurrentPosition(
+                            focusedRichTextEditorRecord,
+                            token
+                        );
+                    }
+                }
 
                 return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
                     whitespaceTextToken);
