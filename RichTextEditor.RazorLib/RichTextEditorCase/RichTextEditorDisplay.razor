@@ -27,16 +27,22 @@ else
                     <CascadingValue Name="ActiveRowId" Value="ActiveRowId">
                         @{
                             var mostDigitsInARowNumber = RichTextEditorSelector.Value.Array.Length.ToString().Length;
-                            var rowKeys = RichTextEditorSelector.Value.Array;
 
-                            for (int i = 0; i < rowKeys.Length; i++)
+                            // Ensure reference to RichTextEditorSelector does
+                            // not change while looping over rows
+                            // by making a local reference to it.
+                            var currentRichTextEditorSelector = RichTextEditorSelector.Value;
+
+                            for (int i = 0; i < currentRichTextEditorSelector.Array.Length; i++)
                             {
                                 var rowIndex = i;
-                                var rowKey = rowKeys[rowIndex];
+
+                                var rowKey = currentRichTextEditorSelector.Array[rowIndex];
+                                var rowValue = currentRichTextEditorSelector.Map[rowKey];
 
                                 <CascadingValue Name="RowIndex" Value="rowIndex">
                                     <RichTextEditorRowDisplay @key="rowKey"
-                                                            RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
+                                                            RichTextEditorRow="rowValue"
                                                             MostDigitsInARowNumber="mostDigitsInARowNumber" />
                                 </CascadingValue>
                             }

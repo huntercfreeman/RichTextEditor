@@ -219,10 +219,6 @@ public partial record RichTextEditorStates
             
             var constructedRowInstance = constructedRowBuilder.Build();
 
-            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
-                focusedRichTextEditorRecord.Map
-            );
-            
             return (RichTextEditorRecord) focusedRichTextEditorRecord
                 .With()
                 .Remove(replacementRowInstance.Key)
