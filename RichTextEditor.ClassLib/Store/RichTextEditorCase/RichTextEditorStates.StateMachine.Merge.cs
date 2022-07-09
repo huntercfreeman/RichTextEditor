@@ -43,13 +43,12 @@ public partial record RichTextEditorStates
             var currentRow = focusedRichTextEditorRecord
                 .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
-            var replacementRowBuilder = currentRow
+            var replacementRow = currentRow
                 .With()
                 .Remove(nextTokenTuple.token.Key)
                 .Remove(focusedRichTextEditorRecord.CurrentTextTokenKey)
-                .Insert(focusedRichTextEditorRecord.CurrentTokenIndex, replacementToken);
-
-            var replacementRow = replacementRowBuilder.Build();
+                .Insert(focusedRichTextEditorRecord.CurrentTokenIndex, replacementToken)
+                .Build();
 
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
