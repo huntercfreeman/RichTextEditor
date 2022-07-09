@@ -67,43 +67,23 @@ public partial record RichTextEditorStates
 
             focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
-            var toBeChangedRow = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
-                as RichTextEditorRow
-                ?? throw new ApplicationException($"Expected typeof, '{nameof(RichTextEditorRow)}'");
+            var nextRowBuilder = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
+                .With();
 
-            var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(
-                toBeChangedRow.Map
-            );
-
-            nextTokenMap.Remove(toBeRemovedTokenKey);
-
-            nextTokenMap.Add(tokenFirst.Key, tokenFirst);
-
-            if (tokenToInsertBetweenSplit is not null)
-                nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
-            
-            nextTokenMap.Add(tokenSecond.Key, tokenSecond);
-            
-            var nextTokenList = new List<TextTokenKey>(
-                toBeChangedRow.Array
-            );
-
-            nextTokenList.Remove(toBeRemovedTokenKey);
+            nextRowBuilder.Remove(toBeRemovedTokenKey);
 
             int insertionOffset = 0;
 
-            nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenFirst.Key);
-            
-            if (tokenToInsertBetweenSplit is not null)
-                nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenToInsertBetweenSplit.Key);
+            nextRowBuilder.Insert(rememberTokenIndex + insertionOffset++, tokenFirst);
 
-            nextTokenList.Insert(rememberTokenIndex + insertionOffset++, tokenSecond.Key);
-            
-            var nextRowInstance = toBeChangedRow with
+            if (tokenToInsertBetweenSplit is not null)
             {
-                Map = nextTokenMap.ToImmutableDictionary(),
-                Array = nextTokenList.ToImmutableArray()
-            };
+                nextRowBuilder.Insert(rememberTokenIndex + insertionOffset++, tokenToInsertBetweenSplit);
+            }
+            
+            nextRowBuilder.Insert(rememberTokenIndex + insertionOffset++, tokenSecond);
+            
+            var nextRowInstance = nextRowBuilder.Build();
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
@@ -143,21 +123,10 @@ public partial record RichTextEditorStates
 
             focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
 
-            var toBeChangedRow = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
-                as RichTextEditorRow
-                ?? throw new ApplicationException($"Expected typeof, '{nameof(RichTextEditorRow)}'");
+            var nextRowBuilder = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
+                .With();
 
-            var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(
-                toBeChangedRow.Map
-            );
-
-            nextTokenMap.Remove(toBeRemovedTokenKey);
-
-            var nextTokenList = new List<TextTokenKey>(
-                toBeChangedRow.Array
-            );
-
-            nextTokenList.Remove(toBeRemovedTokenKey);
+            nextRowBuilder.Remove(toBeRemovedTokenKey);
 
             var spaceKeyDownEventRecord = new KeyDownEventRecord(
                 KeyboardKeyFacts.WhitespaceKeys.SPACE_CODE,
@@ -174,22 +143,14 @@ public partial record RichTextEditorStates
                     IndexInPlainText = null
                 };
 
-                nextTokenMap.Add(spaceWhiteSpaceToken.Key, spaceWhiteSpaceToken);
-                nextTokenList.Insert(rememberTokenIndex + i, spaceWhiteSpaceToken.Key);
+                nextRowBuilder.Insert(rememberTokenIndex + i, spaceWhiteSpaceToken);
             }
 
             if (tokenToInsertBetweenSplit is not null)
-                nextTokenMap.Add(tokenToInsertBetweenSplit.Key, tokenToInsertBetweenSplit);
-
-            if (tokenToInsertBetweenSplit is not null)
-                nextTokenList.Insert(rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1, 
-                    tokenToInsertBetweenSplit.Key);
+                nextRowBuilder.Insert(rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 1, 
+                    tokenToInsertBetweenSplit);
             
-            var nextRowInstance = toBeChangedRow with
-            {
-                Map = nextTokenMap.ToImmutableDictionary(),
-                Array = nextTokenList.ToImmutableArray()
-            };
+            var nextRowInstance = nextRowBuilder.Build();
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map

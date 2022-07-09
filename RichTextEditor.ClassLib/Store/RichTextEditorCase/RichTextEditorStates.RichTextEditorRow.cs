@@ -31,5 +31,67 @@ public partial record RichTextEditorStates
                 startOfRowToken.Key
             }.ToImmutableArray();
         }
+
+        public IRichTextEditorRowBuilder With()
+        {
+            return new RichTextEditorRowBuilder(this);
+        }
+        
+        private class RichTextEditorRowBuilder : IRichTextEditorRowBuilder
+        {
+            public RichTextEditorRowBuilder()
+            {
+                
+            }
+
+            public RichTextEditorRowBuilder(RichTextEditorRow richTextEditorRow)
+            {
+                Key = richTextEditorRow.Key;
+                Map = new(richTextEditorRow.Map);
+                List = new(richTextEditorRow.Array);
+            }
+            
+            private RichTextEditorRowKey Key { get; } = RichTextEditorRowKey.NewRichTextEditorRowKey();
+            private Dictionary<TextTokenKey, ITextToken> Map { get; } = new();  
+            private List<TextTokenKey> List { get; } = new();
+
+            public IRichTextEditorRowBuilder Add(ITextToken token)
+            {
+                Map.Add(token.Key, token);
+                List.Add(token.Key);
+
+                return this;
+            }
+            
+            public IRichTextEditorRowBuilder Insert(int index, ITextToken token)
+            {
+                Map.Add(token.Key, token);
+                List.Insert(index, token.Key);
+
+                return this;
+            }
+
+            public IRichTextEditorRowBuilder Remove(TextTokenKey textTokenKey)
+            {
+                Map.Remove(textTokenKey);
+                List.Remove(textTokenKey);
+
+                return this;
+            }
+
+            public IRichTextEditorRowBuilder Replace(TextTokenKey textTokenKey, ITextToken token)
+            {
+                Map[textTokenKey] = token;
+
+                return this;
+            }
+            
+            public IRichTextEditorRow Build()
+            {
+                return new RichTextEditorRow(Key,
+                    Map.ToImmutableDictionary(),
+                    List.ToImmutableArray());
+            }
+        }
     }
 }

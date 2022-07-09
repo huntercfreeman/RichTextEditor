@@ -43,29 +43,19 @@ public partial record RichTextEditorStates
             var currentRow = focusedRichTextEditorRecord
                 .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
-            var replacementTokenMap = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
-            var replacementTokenList = new List<TextTokenKey>(currentRow.Array);
+            var replacementRowBuilder = currentRow
+                .With()
+                .Remove(nextTokenTuple.token.Key)
+                .Remove(focusedRichTextEditorRecord.CurrentTextTokenKey)
+                .Insert(focusedRichTextEditorRecord.CurrentTokenIndex, replacementToken);
 
-            replacementTokenList.Remove(nextTokenTuple.token.Key);
-            replacementTokenMap.Remove(nextTokenTuple.token.Key);
-
-            replacementTokenList.Remove(focusedRichTextEditorRecord.CurrentTextTokenKey);
-            replacementTokenMap.Remove(focusedRichTextEditorRecord.CurrentTextTokenKey);
-            
-            replacementTokenMap.Add(replacementToken.Key, replacementToken);
-            replacementTokenList.Insert(focusedRichTextEditorRecord.CurrentTokenIndex, replacementToken.Key);
-
-            var replacementRowInstance = new RichTextEditorRow(
-                currentRow.Key,
-                replacementTokenMap.ToImmutableDictionary(), 
-                replacementTokenList.ToImmutableArray()
-            );
+            var replacementRow = replacementRowBuilder.Build();
 
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
             );
 
-            nextRowMap[replacementRowInstance.Key] = replacementRowInstance;
+            nextRowMap[replacementRow.Key] = replacementRow;
 
             return focusedRichTextEditorRecord with
             {

@@ -116,27 +116,10 @@ public partial record RichTextEditorStates
 
             focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
 
-            var toBeChangedRow = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
-                as RichTextEditorRow
-                ?? throw new ApplicationException($"Expected typeof, '{nameof(RichTextEditorRow)}'");
-
-            var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(
-                toBeChangedRow.Map
-            );
-
-            nextTokenMap.Remove(toBeRemovedTokenKey);
-            
-            var nextTokenList = new List<TextTokenKey>(
-                toBeChangedRow.Array
-            );
-
-            nextTokenList.Remove(toBeRemovedTokenKey);
-            
-            var nextRowInstance = toBeChangedRow with
-            {
-                Map = nextTokenMap.ToImmutableDictionary(),
-                Array = nextTokenList.ToImmutableArray()
-            };
+            var nextRowInstance = focusedRichTextEditorRecord.Map[toBeChangedRowKey]
+                .With()
+                .Remove(toBeRemovedTokenKey)
+                .Build();
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
@@ -231,39 +214,23 @@ public partial record RichTextEditorStates
             var currentRow = focusedRichTextEditorRecord
                 .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
-            var replacementTokenMap = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
-            var replacementTokenList = new List<TextTokenKey>(currentRow.Array);
+            var replacementRowBuilder = currentRow.With();
 
-            // Ensure initialization of row with proper 
-            // tokens from one location instead of duplicating that logic
-            var constructedRowInstance = new RichTextEditorRow();
-        
-            var constructedTokenMap = new Dictionary<TextTokenKey, ITextToken>(constructedRowInstance.Map);
-            var constructedTokenList = new List<TextTokenKey>(constructedRowInstance.Array);
+            var constructedRowBuilder = new RichTextEditorRow().With();
             
             for (int i = focusedRichTextEditorRecord.CurrentTokenIndex + 1; i < currentRow.Array.Length; i++)
             {
                 var tokenKey = currentRow.Array[i];
                 var token = currentRow.Map[tokenKey];
                 
-                replacementTokenList.Remove(token.Key);
-                replacementTokenMap.Remove(token.Key);
+                replacementRowBuilder.Remove(token.Key);
 
-                constructedTokenMap.Add(token.Key, token);
-                constructedTokenList.Add(token.Key);
+                constructedRowBuilder.Add(token);
             }
 
-            var replacementRowInstance = new RichTextEditorRow(
-                currentRow.Key,
-                replacementTokenMap.ToImmutableDictionary(), 
-                replacementTokenList.ToImmutableArray()
-            );
+            var replacementRowInstance = replacementRowBuilder.Build();
             
-            constructedRowInstance = new RichTextEditorRow(
-                constructedRowInstance.Key,
-                constructedTokenMap.ToImmutableDictionary(), 
-                constructedTokenList.ToImmutableArray()
-            );
+            var constructedRowInstance = constructedRowBuilder.Build();
 
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
