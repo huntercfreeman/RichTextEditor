@@ -32,39 +32,63 @@ public partial record RichTextEditorStates
             }
             else
             {
-                var rememberToken = focusedRichTextEditorRecord
-                    .GetCurrentTextTokenAs<TextTokenBase>();
+                var nextTokenTuple = GetNextTokenTuple(focusedRichTextEditorRecord);
 
-                if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
+                if (nextTokenTuple.rowIndex == focusedRichTextEditorRecord.CurrentRowIndex &&
+                    nextTokenTuple.token.Kind == TextTokenKind.Default)
                 {
-                    return SplitCurrentToken(
-                        focusedRichTextEditorRecord, 
-                        new DefaultTextToken
-                        {
-                            Content = keyDownEventRecord.Key,
-                            IndexInPlainText = 0
-                        }
-                    );
+                    focusedRichTextEditorRecord = SetNextTokenAsCurrent(focusedRichTextEditorRecord);
+                    
+                    var previousDefaultToken = focusedRichTextEditorRecord.GetCurrentTextTokenAs<DefaultTextToken>();
+
+                    var content = previousDefaultToken.Content
+                        .Insert(0, keyDownEventRecord.Key);
+
+                    var nextDefaultToken = previousDefaultToken with
+                    {
+                        Content = content,
+                        IndexInPlainText = previousDefaultToken.IndexInPlainText
+                    };
+                    
+                    return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, nextDefaultToken);
                 }
                 else
                 {
-                    var replacementCurrentToken = focusedRichTextEditorRecord
-                        .GetCurrentTextTokenAs<TextTokenBase>() with
-                        {
-                            IndexInPlainText = null
-                        };
+                    var rememberToken = focusedRichTextEditorRecord
+                        .GetCurrentTextTokenAs<TextTokenBase>();
 
-                    focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
-
-                    var defaultTextToken = new DefaultTextToken
+                    if (rememberToken.IndexInPlainText!.Value != rememberToken.PlainText.Length - 1)
                     {
-                        Content = keyDownEventRecord.Key,
-                        IndexInPlainText = 0
-                    };
-                    
-                    return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
-                        defaultTextToken);
+                        return SplitCurrentToken(
+                            focusedRichTextEditorRecord, 
+                            new DefaultTextToken
+                            {
+                                Content = keyDownEventRecord.Key,
+                                IndexInPlainText = 0
+                            }
+                        );
+                    }
+                    else
+                    {
+                        var replacementCurrentToken = focusedRichTextEditorRecord
+                            .GetCurrentTextTokenAs<TextTokenBase>() with
+                            {
+                                IndexInPlainText = null
+                            };
+
+                        focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+
+                        var defaultTextToken = new DefaultTextToken
+                        {
+                            Content = keyDownEventRecord.Key,
+                            IndexInPlainText = 0
+                        };
+                        
+                        return InsertNewCurrentTokenAfterCurrentPosition(focusedRichTextEditorRecord,
+                            defaultTextToken);
+                    }
                 }
+                
             }
         }
         
