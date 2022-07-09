@@ -539,6 +539,54 @@ public partial record RichTextEditorStates
             }
         }
 
+        private static RichTextEditorRecord MoveCurrentRowToEndOfPreviousRow(RichTextEditorRecord focusedRichTextEditorRecord)
+        {
+            var toBeMovedRow = focusedRichTextEditorRecord
+                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+            focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
+
+            var currentRow = focusedRichTextEditorRecord
+                .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
+
+            var replacementTokenMap = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
+            var replacementTokenList = new List<TextTokenKey>(currentRow.Array);
+            
+            for (int i = 1; i < toBeMovedRow.Array.Length; i++)
+            {
+                var tokenKey = toBeMovedRow.Array[i];
+                var token = toBeMovedRow.Map[tokenKey];
+                
+                replacementTokenMap.Add(token.Key, token);
+                replacementTokenList.Add(token.Key);
+            }
+
+            var replacementRowInstance = new RichTextEditorRow(
+                currentRow.Key,
+                replacementTokenMap.ToImmutableDictionary(), 
+                replacementTokenList.ToImmutableArray()
+            );
+
+            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
+                focusedRichTextEditorRecord.Map
+            );
+            
+            var nextRowList = new List<RichTextEditorRowKey>(
+                focusedRichTextEditorRecord.Array
+            );
+
+            nextRowList.Remove(toBeMovedRow.Key);
+            nextRowMap.Remove(toBeMovedRow.Key);
+            
+            nextRowMap[replacementRowInstance.Key] = replacementRowInstance;
+            
+            return focusedRichTextEditorRecord with
+            {
+                Map = nextRowMap.ToImmutableDictionary(),
+                Array = nextRowList.ToImmutableArray()
+            };
+        }
+
         /// <summary>
 		/// Returns the inclusive starting column index
 		/// </summary>

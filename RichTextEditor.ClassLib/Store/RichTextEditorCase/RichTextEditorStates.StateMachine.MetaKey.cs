@@ -32,7 +32,17 @@ public partial record RichTextEditorStates
                 return HandleDefaultBackspace(focusedRichTextEditorRecord, keyDownEventRecord);
             }
 
-            return RemoveCurrentToken(focusedRichTextEditorRecord);
+            if (focusedRichTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.StartOfRow &&
+                focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>().Array.Length > 1)
+            {
+                focusedRichTextEditorRecord = MoveCurrentRowToEndOfPreviousRow(focusedRichTextEditorRecord);
+            }
+            else
+            {
+                focusedRichTextEditorRecord = RemoveCurrentToken(focusedRichTextEditorRecord);
+            }
+
+            return focusedRichTextEditorRecord;
         }
     }
 }
