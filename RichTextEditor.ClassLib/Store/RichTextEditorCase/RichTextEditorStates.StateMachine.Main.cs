@@ -160,6 +160,7 @@ public partial record RichTextEditorStates
             };
         }
         
+        // The replacement token must have the same Key as the one being replaced
         private static RichTextEditorRecord ReplaceCurrentTokenWith(RichTextEditorRecord focusedRichTextEditorRecord,
             ITextToken textToken)
         {

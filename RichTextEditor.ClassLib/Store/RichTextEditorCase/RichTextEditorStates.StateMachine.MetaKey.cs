@@ -42,6 +42,8 @@ public partial record RichTextEditorStates
                 focusedRichTextEditorRecord = RemoveCurrentToken(focusedRichTextEditorRecord);
             }
 
+            focusedRichTextEditorRecord = MergeTokensIfApplicable(focusedRichTextEditorRecord);
+
             return focusedRichTextEditorRecord;
         }
     }
