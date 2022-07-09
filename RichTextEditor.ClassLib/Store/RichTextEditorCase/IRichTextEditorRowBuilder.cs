@@ -10,6 +10,5 @@ public interface IRichTextEditorRowBuilder
     public IRichTextEditorRowBuilder Add(ITextToken token);
     public IRichTextEditorRowBuilder Insert(int index, ITextToken token);
     public IRichTextEditorRowBuilder Remove(TextTokenKey textTokenKey);
-    public IRichTextEditorRowBuilder Replace(TextTokenKey textTokenKey, ITextToken token);
     public IRichTextEditorRow Build();
 }

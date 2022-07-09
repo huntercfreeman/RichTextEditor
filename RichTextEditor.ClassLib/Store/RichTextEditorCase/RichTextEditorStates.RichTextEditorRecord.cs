@@ -61,5 +61,80 @@ public partial record RichTextEditorStates
             return CurrentRichTextEditorRow as T
                 ?? throw new ApplicationException($"Expected {typeof(T).Name}");
         }
+
+        public IRichTextEditorBuilder With()
+    {
+        return new RichTextEditorBuilder(this);
+    }
+        
+    private class RichTextEditorBuilder : IRichTextEditorBuilder
+    {
+        public RichTextEditorBuilder()
+        {
+            
+        }
+
+        public RichTextEditorBuilder(IRichTextEditor richTextEditor)
+        {
+            Key = richTextEditor.RichTextEditorKey;
+            Map = new(richTextEditor.Map);
+            List = new(richTextEditor.Array);
+            CurrentRowIndex = richTextEditor.CurrentRowIndex;
+            CurrentTokenIndex = richTextEditor.CurrentTokenIndex;
+        }
+        
+        private RichTextEditorKey Key { get; } = RichTextEditorKey.NewRichTextEditorKey();
+        private Dictionary<RichTextEditorRowKey, IRichTextEditorRow> Map { get; } = new();  
+        private List<RichTextEditorRowKey> List { get; } = new();
+        private int CurrentRowIndex { get; set; }
+        private int CurrentTokenIndex { get; set; }
+
+        public IRichTextEditorBuilder Add(IRichTextEditorRow richTextEditorRow)
+        {
+            Map.Add(richTextEditorRow.Key, richTextEditorRow);
+            List.Add(richTextEditorRow.Key);
+
+            return this;
+        }
+        
+        public IRichTextEditorBuilder Insert(int index, IRichTextEditorRow richTextEditorRow)
+        {
+            Map.Add(richTextEditorRow.Key, richTextEditorRow);
+            List.Insert(index, richTextEditorRow.Key);
+
+            return this;
+        }
+
+        public IRichTextEditorBuilder Remove(RichTextEditorRowKey richTextEditorRowKey)
+        {
+            Map.Remove(richTextEditorRowKey);
+            List.Remove(richTextEditorRowKey);
+
+            return this;
+        }
+        
+        public IRichTextEditorBuilder CurrentRowIndexOf(int currentRowIndex)
+        {
+            CurrentRowIndex = currentRowIndex;
+
+            return this;
+        }
+        
+        public IRichTextEditorBuilder CurrentTokenIndexOf(int currentTokenIndex)
+        {
+            CurrentTokenIndex = currentTokenIndex;
+
+            return this;
+        }
+        
+        public IRichTextEditor Build()
+        {
+            return new RichTextEditorRecord(Key,
+                Map.ToImmutableDictionary(),
+                List.ToImmutableArray(),
+                CurrentRowIndex,
+                CurrentTokenIndex);
+        }
+    }
     }
 }

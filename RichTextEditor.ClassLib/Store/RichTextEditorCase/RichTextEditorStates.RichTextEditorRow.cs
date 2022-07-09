@@ -78,13 +78,6 @@ public partial record RichTextEditorStates
 
                 return this;
             }
-
-            public IRichTextEditorRowBuilder Replace(TextTokenKey textTokenKey, ITextToken token)
-            {
-                Map[textTokenKey] = token;
-
-                return this;
-            }
             
             public IRichTextEditorRow Build()
             {

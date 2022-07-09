@@ -155,23 +155,10 @@ public partial record RichTextEditorStates
 
             focusedRichTextEditorRecord = SetPreviousTokenAsCurrent(focusedRichTextEditorRecord);
             
-            var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
-                focusedRichTextEditorRecord.Map
-            );
-
-            nextRowMap.Remove(toBeDeletedRow.Key);
-            
-            var nextRowList = new List<RichTextEditorRowKey>(
-                focusedRichTextEditorRecord.Array
-            );
-
-            nextRowList.Remove(toBeDeletedRow.Key);
-
-            return focusedRichTextEditorRecord with
-            {
-                Map = nextRowMap.ToImmutableDictionary(),
-                Array = nextRowList.ToImmutableArray()
-            };
+            return (RichTextEditorRecord) focusedRichTextEditorRecord
+                .With()
+                .Remove(toBeDeletedRow.Key)
+                .Build();
         }
         
         // The replacement token must have the same Key as the one being replaced
@@ -236,26 +223,14 @@ public partial record RichTextEditorStates
                 focusedRichTextEditorRecord.Map
             );
             
-            var nextRowList = new List<RichTextEditorRowKey>(
-                focusedRichTextEditorRecord.Array
-            );
-
-            nextRowList.Remove(replacementRowInstance.Key);
-            nextRowMap.Remove(replacementRowInstance.Key);
-            
-            nextRowMap.Add(replacementRowInstance.Key, replacementRowInstance);
-            nextRowList.Insert(focusedRichTextEditorRecord.CurrentRowIndex, replacementRowInstance.Key);
-            
-            nextRowMap.Add(constructedRowInstance.Key, constructedRowInstance);
-            nextRowList.Insert(focusedRichTextEditorRecord.CurrentRowIndex + 1, constructedRowInstance.Key);
-
-            return focusedRichTextEditorRecord with
-            {
-                Map = nextRowMap.ToImmutableDictionary(),
-                Array = nextRowList.ToImmutableArray(),
-                CurrentTokenIndex = 0,
-                CurrentRowIndex = focusedRichTextEditorRecord.CurrentRowIndex + 1
-            };
+            return (RichTextEditorRecord) focusedRichTextEditorRecord
+                .With()
+                .Remove(replacementRowInstance.Key)
+                .Insert(focusedRichTextEditorRecord.CurrentRowIndex, replacementRowInstance)
+                .Insert(focusedRichTextEditorRecord.CurrentRowIndex + 1, constructedRowInstance)
+                .CurrentTokenIndexOf(0)
+                .CurrentRowIndexOf(focusedRichTextEditorRecord.CurrentRowIndex + 1)
+                .Build();
         }
         
         private static (int rowIndex, int tokenIndex, TextTokenBase token) GetPreviousTokenTuple(RichTextEditorRecord focusedRichTextEditorRecord)
@@ -548,23 +523,17 @@ public partial record RichTextEditorStates
             var currentRow = focusedRichTextEditorRecord
                 .GetCurrentRichTextEditorRowAs<RichTextEditorRow>();
 
-            var replacementTokenMap = new Dictionary<TextTokenKey, ITextToken>(currentRow.Map);
-            var replacementTokenList = new List<TextTokenKey>(currentRow.Array);
-            
+            var replacementRowBuilder = currentRow.With();
+
             for (int i = 1; i < toBeMovedRow.Array.Length; i++)
             {
                 var tokenKey = toBeMovedRow.Array[i];
                 var token = toBeMovedRow.Map[tokenKey];
                 
-                replacementTokenMap.Add(token.Key, token);
-                replacementTokenList.Add(token.Key);
+                replacementRowBuilder.Add(token);
             }
 
-            var replacementRowInstance = new RichTextEditorRow(
-                currentRow.Key,
-                replacementTokenMap.ToImmutableDictionary(), 
-                replacementTokenList.ToImmutableArray()
-            );
+            var replacementRowInstance = replacementRowBuilder.Build();
 
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
                 focusedRichTextEditorRecord.Map
