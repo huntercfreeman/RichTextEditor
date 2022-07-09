@@ -61,6 +61,25 @@ public partial record RichTextEditorStates
 
             return new RichTextEditorStates(nextRichTextEditorMap.ToImmutableDictionary(), nextRichTextEditorList.ToImmutableArray());
         }
+        
+        [ReducerMethod]
+        public static RichTextEditorStates ReduceRichTextEditorOnClickAction(RichTextEditorStates previousRichTextEditorStates,
+            RichTextEditorOnClickAction richTextEditorOnClickAction)
+        {
+            var nextRichTextEditorMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
+            var nextRichTextEditorList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
+            
+            var focusedRichTextEditor = previousRichTextEditorStates.Map[richTextEditorOnClickAction.FocusedRichTextEditorKey]
+                as RichTextEditorRecord;
+
+            if (focusedRichTextEditor is null) 
+                return previousRichTextEditorStates;
+            
+            nextRichTextEditorMap[richTextEditorOnClickAction.FocusedRichTextEditorKey] = RichTextEditorStates.StateMachine
+                .HandleOnClickEvent(focusedRichTextEditor, richTextEditorOnClickAction);
+
+            return new RichTextEditorStates(nextRichTextEditorMap.ToImmutableDictionary(), nextRichTextEditorList.ToImmutableArray());
+        }
     }
 }
 

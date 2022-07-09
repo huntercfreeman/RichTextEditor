@@ -6,6 +6,7 @@
     {
         case TextTokenKind.StartOfRow:
             <CharacterRenderer Character="@string.Empty"
+                               CharacterIndex="0"
                                ShouldDisplayCursor="TextToken.IndexInPlainText is not null" />
             break;
         case TextTokenKind.Default:
@@ -16,6 +17,7 @@
                         var index = i;
 
                         <CharacterRenderer Character="@TextToken.PlainText[index].ToString()"
+                                           CharacterIndex="index"
                                            ShouldDisplayCursor="(TextToken.IndexInPlainText ?? -1) == index" />
                     }
                 }
@@ -29,6 +31,7 @@
                         var index = i;
 
                         <CharacterRenderer Character="@TextToken.PlainText[index].ToString().EscapeHtml()"
+                                            CharacterIndex="index"
                                             ShouldDisplayCursor="(TextToken.IndexInPlainText ?? -1) == index" />
                     }
                 }

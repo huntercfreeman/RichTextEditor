@@ -21,24 +21,27 @@ else
             class="rte_visually-hidden rte_unselectable rte_focus-trap"
             style="position: absolute; @InputFocusTrapTopStyleCss" />
         
-        <CascadingValue Value="_isFocused">
-            <CascadingValue Name="CurrentRowIndex" Value="RichTextEditorSelector.Value.CurrentRowIndex">
-                <CascadingValue Name="ActiveRowId" Value="ActiveRowId">
-                    @{
-                        var mostDigitsInARowNumber = RichTextEditorSelector.Value.Array.Length.ToString().Length;
-                        var rowKeys = RichTextEditorSelector.Value.Array;
+        <CascadingValue Value="RichTextEditorKey">
+            <CascadingValue Value="_isFocused">
+                <CascadingValue Name="CurrentRowIndex" Value="RichTextEditorSelector.Value.CurrentRowIndex">
+                    <CascadingValue Name="ActiveRowId" Value="ActiveRowId">
+                        @{
+                            var mostDigitsInARowNumber = RichTextEditorSelector.Value.Array.Length.ToString().Length;
+                            var rowKeys = RichTextEditorSelector.Value.Array;
 
-                        for (int i = 0; i < rowKeys.Length; i++)
-                        {
-                            var index = i;
-                            var rowKey = rowKeys[index];
-                            
-                            <RichTextEditorRowDisplay @key="rowKey"
-                                                    RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
-                                                    Index="index"
-                                                    MostDigitsInARowNumber="mostDigitsInARowNumber" />
+                            for (int i = 0; i < rowKeys.Length; i++)
+                            {
+                                var rowIndex = i;
+                                var rowKey = rowKeys[rowIndex];
+
+                                <CascadingValue Name="RowIndex" Value="rowIndex">
+                                    <RichTextEditorRowDisplay @key="rowKey"
+                                                            RichTextEditorRow="RichTextEditorSelector.Value.Map[rowKey]"
+                                                            MostDigitsInARowNumber="mostDigitsInARowNumber" />
+                                </CascadingValue>
+                            }
                         }
-                    }
+                    </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>

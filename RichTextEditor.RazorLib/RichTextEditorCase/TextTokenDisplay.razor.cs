@@ -9,6 +9,6 @@ namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
 public partial class TextTokenDisplay : ComponentBase
 {
-    [Parameter]
+    [Parameter, EditorRequired]
     public ITextToken TextToken { get; set; } = null!;
 }

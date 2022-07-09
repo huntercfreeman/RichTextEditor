@@ -2,15 +2,21 @@
 
 <div id="@IsActiveRowId"
      class="rte_rich-text-editor-row-display @IsActiveCss">
-    <RichTextEditorLineNumberDisplay IndexOfRow="Index"
-                                     MostDigitsInARowNumber="MostDigitsInARowNumber" />
+    <RichTextEditorLineNumberDisplay MostDigitsInARowNumber="MostDigitsInARowNumber" />
 
     
     <div class="rte_rich-text-editor-row-display-body"
          style="@WidthStyleCss">
-        @foreach(var textTokenKey in RichTextEditorRow.Array)
+
+        @for (int i = 0; i < RichTextEditorRow.Array.Length; i++)
         {
-            <TextTokenDisplay TextToken="RichTextEditorRow.Map[textTokenKey]" />
+            var tokenIndex = i;
+            var tokenKey = RichTextEditorRow.Array[tokenIndex];
+            
+            <CascadingValue Name="TokenIndex" Value="tokenIndex">
+                <TextTokenDisplay @key="tokenKey"
+                                  TextToken="RichTextEditorRow.Map[tokenKey]" />
+            </CascadingValue>
         }
     </div>
 </div>

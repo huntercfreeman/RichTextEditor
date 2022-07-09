@@ -32,6 +32,36 @@ public partial record RichTextEditorStates
                 return HandleDefaultInsert(focusedRichTextEditorRecord, keyDownEventRecord);
             }
         }
+        
+        public static RichTextEditorRecord HandleOnClickEvent(RichTextEditorRecord focusedRichTextEditorRecord, 
+            RichTextEditorOnClickAction richTextEditorOnClickAction)
+        {
+            var currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
+
+            var replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = null
+                };
+            
+            focusedRichTextEditorRecord = ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+    
+            focusedRichTextEditorRecord = focusedRichTextEditorRecord with
+            {
+                CurrentTokenIndex = richTextEditorOnClickAction.TokenIndex,
+                CurrentRowIndex = richTextEditorOnClickAction.RowIndex
+            };
+
+            currentToken = focusedRichTextEditorRecord
+                .GetCurrentTextTokenAs<TextTokenBase>();
+
+            replacementCurrentToken = currentToken with
+                {
+                    IndexInPlainText = richTextEditorOnClickAction.CharacterIndex
+                };
+
+            return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);
+        }
 
         private static RichTextEditorRecord InsertNewCurrentTokenAfterCurrentPosition(RichTextEditorRecord focusedRichTextEditorRecord,
             ITextToken textToken)

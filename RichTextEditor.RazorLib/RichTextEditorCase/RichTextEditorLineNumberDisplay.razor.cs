@@ -8,12 +8,13 @@ namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
 public partial class RichTextEditorLineNumberDisplay : ComponentBase
 {
-    [Parameter]
-    public int IndexOfRow { get; set; }
-    [Parameter]
+    [CascadingParameter(Name="RowIndex")]
+    public int RowIndex { get; set; }
+
+    [Parameter, EditorRequired]
     public int MostDigitsInARowNumber { get; set; }
 
-    private int CountOfDigitsInRowNumber => (IndexOfRow + 1).ToString().Length;
+    private int CountOfDigitsInRowNumber => (RowIndex + 1).ToString().Length;
     private string WidthStyleCss => $"width: {MostDigitsInARowNumber}ch;";
     private string PaddingLeftStyleCss => $"padding-left: {MostDigitsInARowNumber - CountOfDigitsInRowNumber}ch;";
 }

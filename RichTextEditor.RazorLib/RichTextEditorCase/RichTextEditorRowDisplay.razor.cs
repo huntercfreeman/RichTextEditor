@@ -15,21 +15,21 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
     public int RichTextEditorCurrentRowIndex { get; set; }
     [CascadingParameter(Name="ActiveRowId")]
     public string ActiveRowId { get; set; } = null!;
+    [CascadingParameter(Name="RowIndex")]
+    public int RowIndex { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public IRichTextEditorRow RichTextEditorRow { get; set; } = null!;
-    [Parameter]
-    public int Index { get; set; }
-    [Parameter]
+    [Parameter, EditorRequired]
     public int MostDigitsInARowNumber { get; set; }
 
-    private string IsActiveCss => RichTextEditorCurrentRowIndex == Index
+    private string IsActiveCss => RichTextEditorCurrentRowIndex == RowIndex
         ? "rte_active"
         : string.Empty;
 
     private string WidthStyleCss => $"width: calc(100% - {MostDigitsInARowNumber}ch);";
     
-    private string IsActiveRowId => RichTextEditorCurrentRowIndex == Index
+    private string IsActiveRowId => RichTextEditorCurrentRowIndex == RowIndex
         ? ActiveRowId
         : string.Empty;
 }

@@ -22,7 +22,7 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
 
     private bool _isFocused;
