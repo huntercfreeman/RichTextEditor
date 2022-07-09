@@ -57,7 +57,8 @@ public partial record RichTextEditorStates
 
             replacementCurrentToken = currentToken with
                 {
-                    IndexInPlainText = richTextEditorOnClickAction.CharacterIndex
+                    IndexInPlainText = richTextEditorOnClickAction.CharacterIndex ??
+                        currentToken.PlainText.Length - 1
                 };
 
             return ReplaceCurrentTokenWith(focusedRichTextEditorRecord, replacementCurrentToken);

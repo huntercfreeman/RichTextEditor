@@ -21,6 +21,8 @@ public partial class CharacterRenderer : ComponentBase
     public int RowIndex { get; set; }
     [CascadingParameter]
     public RichTextEditorKey RichTextEditorKey { get; set; } = null!;
+    [CascadingParameter(Name="NotifyCharacterWasClicked")]
+    public Action NotifyCharacterWasClicked { get; set; } = null!;
     
     [Parameter, EditorRequired]
     // The html escaped character for space is &nbsp; which
@@ -33,6 +35,8 @@ public partial class CharacterRenderer : ComponentBase
 
     private void DispatchRichTextEditorOnClickAction()
     {
+        NotifyCharacterWasClicked();
+
         Dispatcher.Dispatch(new RichTextEditorOnClickAction(
             RichTextEditorKey,
             RowIndex,
