@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RichTextEditor.ClassLib.Keyboard;
+using RichTextEditor.ClassLib.Sequence;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
@@ -86,11 +87,12 @@ public partial record RichTextEditorStates
             );
 
             nextTokenList.Insert(focusedRichTextEditorRecord.CurrentTokenIndex + 1, textToken.Key);
-            
+
             var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
             {
                 Map = nextTokenMap.ToImmutableDictionary(),
-                Array = nextTokenList.ToImmutableArray()
+                Array = nextTokenList.ToImmutableArray(),
+                SequenceKey = SequenceKey.NewSequenceKey()
             };
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
@@ -173,7 +175,8 @@ public partial record RichTextEditorStates
 
             var nextRowInstance = focusedRichTextEditorRecord.GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
             {
-                Map = nextTokenMap.ToImmutableDictionary()
+                Map = nextTokenMap.ToImmutableDictionary(),
+                SequenceKey = SequenceKey.NewSequenceKey()
             };
             
             var nextRowMap = new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>(
@@ -379,7 +382,8 @@ public partial record RichTextEditorStates
                 nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
                     .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
                     {
-                        Map = nextTokenMap.ToImmutableDictionary()
+                        Map = nextTokenMap.ToImmutableDictionary(),
+                        SequenceKey = SequenceKey.NewSequenceKey()
                     };
 
                 return focusedRichTextEditorRecord with
@@ -410,7 +414,8 @@ public partial record RichTextEditorStates
 
                 nextRowMap[previousRowKey] = previousRow with
                     {
-                        Map = nextTokenMap.ToImmutableDictionary()
+                        Map = nextTokenMap.ToImmutableDictionary(),
+                        SequenceKey = SequenceKey.NewSequenceKey()
                     };
 
                 return focusedRichTextEditorRecord with
@@ -466,7 +471,8 @@ public partial record RichTextEditorStates
                 nextRowMap[focusedRichTextEditorRecord.CurrentRichTextEditorRowKey] = focusedRichTextEditorRecord
                     .GetCurrentRichTextEditorRowAs<RichTextEditorRow>() with
                     {
-                        Map = nextTokenMap.ToImmutableDictionary()
+                        Map = nextTokenMap.ToImmutableDictionary(),
+                        SequenceKey = SequenceKey.NewSequenceKey()
                     };
 
                 return focusedRichTextEditorRecord with
@@ -497,7 +503,8 @@ public partial record RichTextEditorStates
 
                 nextRowMap[nextRowKey] = nextRow with
                     {
-                        Map = nextTokenMap.ToImmutableDictionary()
+                        Map = nextTokenMap.ToImmutableDictionary(),
+                        SequenceKey = SequenceKey.NewSequenceKey()
                     };
 
                 return focusedRichTextEditorRecord with
