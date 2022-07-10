@@ -1,8 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿@using RichTextEditor.WebAssembly.Components
+@inherits LayoutComponentBase
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+
+<RichTextEditor.RazorLib.RichTextEditorInitializer />
 
 <MudLayout>
     <MudAppBar Elevation="0">
@@ -13,7 +16,8 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">RichTextEditor.WebAssembly</MudText>
+            <RichTextEditor.BlazorServerSide.Components.RichTextEditorSpawn />
+            <MudText Typo="Typo.h6">RichTextEditor.BlazorServerSide</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>

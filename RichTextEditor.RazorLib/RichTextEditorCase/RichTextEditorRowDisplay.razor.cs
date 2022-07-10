@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Fluxor;
 using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
+using RichTextEditor.ClassLib.Sequence;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
+using RichTextEditor.ClassLib.WebAssemblyFix;
 
 namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
@@ -29,6 +31,7 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
     public int MostDigitsInARowNumber { get; set; }
 
     private bool _characterWasClicked;
+    private SequenceKey? _previousSequenceKey;
 
     private string IsActiveCss => RichTextEditorCurrentRowIndex == RowIndex
         ? "rte_active"
@@ -39,17 +42,40 @@ public partial class RichTextEditorRowDisplay : FluxorComponent
     private string IsActiveRowId => RichTextEditorCurrentRowIndex == RowIndex
         ? ActiveRowId
         : string.Empty;
-    
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine($"Row Render, RowIndex: {RowIndex}");
+
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override bool ShouldRender()
+    {
+        var shouldRender = false;
+
+        if (RichTextEditorRow.SequenceKey != _previousSequenceKey)
+            shouldRender = true;
+
+        _previousSequenceKey = RichTextEditorRow.SequenceKey;
+
+        return shouldRender;
+    }
+
     private void DispatchRichTextEditorOnClickAction()
     {
         if (!_characterWasClicked)
         {
-            Dispatcher.Dispatch(new RichTextEditorOnClickAction(
-                RichTextEditorKey,
-                RowIndex,
-                RichTextEditorRow.Array.Length - 1,
-                null
-            ));
+            Dispatcher.Dispatch(
+                new WebAssemblyFixDelayAction(
+                    new RichTextEditorOnClickAction(
+                        RichTextEditorKey,
+                        RowIndex,
+                        RichTextEditorRow.Array.Length - 1,
+                        null
+                    )
+                )
+            );
         }
         else
         {

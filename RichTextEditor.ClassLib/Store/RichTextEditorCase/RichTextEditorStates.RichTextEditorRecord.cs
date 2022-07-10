@@ -5,19 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Fluxor;
+using RichTextEditor.ClassLib.Sequence;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
 public partial record RichTextEditorStates
 {
-    private record RichTextEditorRecord(RichTextEditorKey RichTextEditorKey, 
+    private record RichTextEditorRecord(RichTextEditorKey RichTextEditorKey,
+        SequenceKey SequenceKey,
         ImmutableDictionary<RichTextEditorRowKey, IRichTextEditorRow> Map, 
         ImmutableArray<RichTextEditorRowKey> Array,
         int CurrentRowIndex,
         int CurrentTokenIndex)
             : IRichTextEditor
     {
-        public RichTextEditorRecord(RichTextEditorKey richTextEditorKey) : this(richTextEditorKey, 
+        public RichTextEditorRecord(RichTextEditorKey richTextEditorKey) : this(richTextEditorKey,
+            SequenceKey.NewSequenceKey(),
             new Dictionary<RichTextEditorRowKey, IRichTextEditorRow>().ToImmutableDictionary(),
             new RichTextEditorRowKey[0].ToImmutableArray(),
             CurrentRowIndex: 0,
@@ -130,6 +133,7 @@ public partial record RichTextEditorStates
         public IRichTextEditor Build()
         {
             return new RichTextEditorRecord(Key,
+                SequenceKey.NewSequenceKey(),
                 Map.ToImmutableDictionary(),
                 List.ToImmutableArray(),
                 CurrentRowIndex,

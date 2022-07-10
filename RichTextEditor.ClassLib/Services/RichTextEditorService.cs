@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fluxor;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
+using RichTextEditor.ClassLib.WebAssemblyFix;
 
 namespace RichTextEditor.ClassLib.Services;
 
@@ -58,12 +59,16 @@ public class RichTextEditorService : IRichTextEditorService, IDisposable
             _onRichTextEditorConstructedActionsSemaphoreSlim.Release();
         }
 
-        _dispatcher.Dispatch(new ConstructRichTextEditorRecordAction(richTextEditorKey));
+        _dispatcher.Dispatch(
+            new WebAssemblyFixDelayAction(
+                new ConstructRichTextEditorRecordAction(richTextEditorKey)));
     }
     
     public void DeconstructRichTextEditor(RichTextEditorKey richTextEditorKey)
     {
-        _dispatcher.Dispatch(new DeconstructRichTextEditorRecordAction(richTextEditorKey));
+        _dispatcher.Dispatch(
+            new WebAssemblyFixDelayAction(
+                new DeconstructRichTextEditorRecordAction(richTextEditorKey)));
     }
 
     public void Dispose()

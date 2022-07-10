@@ -11,6 +11,14 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.4" PrivateAssets="all" />
 		<PackageReference Include="MudBlazor" Version="6.0.9" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RichTextEditor.RazorLib\RichTextEditor.RazorLib.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="Components\RichTextEditorSpawn.razor" />
+	</ItemGroup>
 	
 	
 </Project>

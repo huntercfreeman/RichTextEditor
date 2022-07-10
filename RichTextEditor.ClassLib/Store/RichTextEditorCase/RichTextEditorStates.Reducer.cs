@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Fluxor;
-using RichTextEditor.ClassLib.Keyboard;
+using RichTextEditor.ClassLib.Sequence;
 using RichTextEditor.ClassLib.Store.KeyDownEventCase;
+using System.Collections.Immutable;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 
@@ -47,6 +42,7 @@ public partial record RichTextEditorStates
         public static RichTextEditorStates ReduceKeyDownEventAction(RichTextEditorStates previousRichTextEditorStates,
             KeyDownEventAction keyDownEventAction)
         {
+            Console.WriteLine($"ReduceKeyDownEventAction {keyDownEventAction.KeyDownEventRecord.Key ?? string.Empty}");
             var nextRichTextEditorMap = new Dictionary<RichTextEditorKey, IRichTextEditor>(previousRichTextEditorStates.Map);
             var nextRichTextEditorList = new List<RichTextEditorKey>(previousRichTextEditorStates.Array);
             
@@ -55,9 +51,14 @@ public partial record RichTextEditorStates
 
             if (focusedRichTextEditor is null) 
                 return previousRichTextEditorStates;
-            
-            nextRichTextEditorMap[keyDownEventAction.FocusedRichTextEditorKey] = RichTextEditorStates.StateMachine
-                .HandleKeyDownEvent(focusedRichTextEditor, keyDownEventAction.KeyDownEventRecord);
+
+            var replacementRichTextEditor = RichTextEditorStates.StateMachine
+                .HandleKeyDownEvent(focusedRichTextEditor, keyDownEventAction.KeyDownEventRecord) with
+            {
+                SequenceKey = SequenceKey.NewSequenceKey()
+            };
+
+            nextRichTextEditorMap[keyDownEventAction.FocusedRichTextEditorKey] = replacementRichTextEditor;
 
             return new RichTextEditorStates(nextRichTextEditorMap.ToImmutableDictionary(), nextRichTextEditorList.ToImmutableArray());
         }
@@ -74,9 +75,14 @@ public partial record RichTextEditorStates
 
             if (focusedRichTextEditor is null) 
                 return previousRichTextEditorStates;
-            
-            nextRichTextEditorMap[richTextEditorOnClickAction.FocusedRichTextEditorKey] = RichTextEditorStates.StateMachine
-                .HandleOnClickEvent(focusedRichTextEditor, richTextEditorOnClickAction);
+
+            var replacementRichTextEditor = RichTextEditorStates.StateMachine
+                .HandleOnClickEvent(focusedRichTextEditor, richTextEditorOnClickAction) with
+            {
+                SequenceKey = SequenceKey.NewSequenceKey()
+            };
+
+            nextRichTextEditorMap[richTextEditorOnClickAction.FocusedRichTextEditorKey] = replacementRichTextEditor;
 
             return new RichTextEditorStates(nextRichTextEditorMap.ToImmutableDictionary(), nextRichTextEditorList.ToImmutableArray());
         }

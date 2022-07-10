@@ -1,3 +1,4 @@
+using RichTextEditor.ClassLib.Sequence;
 using System.Collections.Immutable;
 
 namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
@@ -5,11 +6,13 @@ namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
 public partial record RichTextEditorStates
 {
     private record RichTextEditorRow(RichTextEditorRowKey Key, 
-        ImmutableDictionary<TextTokenKey, ITextToken> Map, 
+        SequenceKey SequenceKey,
+        ImmutableDictionary<TextTokenKey, ITextToken> Map,
         ImmutableArray<TextTokenKey> Array)
             : IRichTextEditorRow
     {
         public RichTextEditorRow() : this(RichTextEditorRowKey.NewRichTextEditorRowKey(), 
+            SequenceKey.NewSequenceKey(),
             new Dictionary<TextTokenKey, ITextToken>().ToImmutableDictionary(),
             new TextTokenKey[0].ToImmutableArray())
         {
@@ -82,6 +85,7 @@ public partial record RichTextEditorStates
             public IRichTextEditorRow Build()
             {
                 return new RichTextEditorRow(Key,
+                    SequenceKey.NewSequenceKey(),
                     Map.ToImmutableDictionary(),
                     List.ToImmutableArray());
             }

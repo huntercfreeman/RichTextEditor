@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
+using RichTextEditor.ClassLib.WebAssemblyFix;
 
 namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
@@ -37,11 +38,15 @@ public partial class CharacterRenderer : ComponentBase
     {
         NotifyCharacterWasClicked();
 
-        Dispatcher.Dispatch(new RichTextEditorOnClickAction(
-            RichTextEditorKey,
-            RowIndex,
-            TokenIndex,
-            CharacterIndex
-        ));
+        Dispatcher.Dispatch(
+            new WebAssemblyFixDelayAction(
+                new RichTextEditorOnClickAction(
+                    RichTextEditorKey,
+                    RowIndex,
+                    TokenIndex,
+                    CharacterIndex
+                )
+            )
+        );
     }
 }

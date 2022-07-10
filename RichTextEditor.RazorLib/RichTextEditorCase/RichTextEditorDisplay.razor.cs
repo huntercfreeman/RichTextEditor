@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using RichTextEditor.ClassLib.Keyboard;
+using RichTextEditor.ClassLib.Sequence;
 using RichTextEditor.ClassLib.Store.KeyDownEventCase;
 using RichTextEditor.ClassLib.Store.RichTextEditorCase;
+using RichTextEditor.ClassLib.WebAssemblyFix;
 
 namespace RichTextEditor.RazorLib.RichTextEditorCase;
 
@@ -38,6 +40,8 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
     
     private string InputFocusTrapTopStyleCss => $"top: calc({RichTextEditorSelector.Value!.CurrentRowIndex + 1}em + {RichTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
 
+    private SequenceKey? _previousSequenceKey;
+
     protected override void OnInitialized()
     {
         RichTextEditorSelector.Select(x => 
@@ -51,6 +55,8 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
 
     protected override void OnAfterRender(bool firstRender)
     {
+        Console.WriteLine($"OnAfterRender, RichTextEditorKey: {RichTextEditorKey}");
+        
         if (firstRender)
         {
            JsRuntime.InvokeVoidAsync("richTextEditor.subscribeScrollIntoView",
@@ -64,29 +70,61 @@ public partial class RichTextEditorDisplay : FluxorComponent, IDisposable
         base.OnAfterRender(firstRender);
     }
 
+    /// <summary>
+    /// @onkeydown by default takes an EventCallback which causes
+    /// many redundant StateHasChanged calls.
+    /// 
+    /// Fluxor IStateSelection correctly does not render in certain conditions but
+    /// the EventCallback implicitely calling StateHasChanged results in ShouldRender being necessary
+    /// </summary>
+    /// <returns></returns>
+    protected override bool ShouldRender()
+    {
+        if (RichTextEditorSelector.Value is null)
+            return true;
+
+        var shouldRender = false;
+
+        if(RichTextEditorSelector.Value.SequenceKey != _previousSequenceKey)
+            shouldRender = true;
+
+        _previousSequenceKey = RichTextEditorSelector.Value.SequenceKey;
+
+        return shouldRender;
+    }
+
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        Dispatcher.Dispatch(new KeyDownEventAction(RichTextEditorKey, new ClassLib.Keyboard.KeyDownEventRecord(
-            e.Key,
-            e.Code,
-            e.CtrlKey,
-            e.ShiftKey,
-            e.AltKey
-        )));
+        Dispatcher.Dispatch(
+            new WebAssemblyFixDelayAction(
+                new KeyDownEventAction(RichTextEditorKey, 
+                    new ClassLib.Keyboard.KeyDownEventRecord(
+                        e.Key,
+                        e.Code,
+                        e.CtrlKey,
+                        e.ShiftKey,
+                        e.AltKey
+                        )
+                )
+            )
+        );
     }
     
     private void OnFocusIn()
     {
+        _previousSequenceKey = null;
         _isFocused = true;
     }
 
     private void OnFocusOut()
     {
+        _previousSequenceKey = null;
         _isFocused = false;
     }
 
     private void FocusInputFocusTrapOnClick()
     {
+        _previousSequenceKey = null;
         _inputFocusTrap.FocusAsync();
     }
 
